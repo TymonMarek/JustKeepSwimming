@@ -1,7 +1,10 @@
 import asyncio
 
+from game import Game
+
 async def main() -> None:
-    pass
+    game = Game()
+    await game.run()
 
 
 if __name__ == "__main__":
