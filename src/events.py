@@ -11,8 +11,8 @@ class Events:
         self.bindings: DefaultDict[int, Emitter[Tick, pygame.event.Event]] = defaultdict(Emitter)
 
     def bind(self, event_type: int, callback: Callable[[Tick, pygame.event.Event], Any]):
-        self.bindings.get(event_type, Emitter()).listen(callback)
+        self.bindings[event_type].listen(callback)
 
     async def tick(self, tick: Tick) -> None:
         for event in pygame.event.get():
-            await self.bindings.get(event.type, Emitter()).emit(tick, event)
+            await self.bindings[event.type].emit(tick, event)
