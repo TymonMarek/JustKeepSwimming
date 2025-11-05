@@ -1,5 +1,6 @@
 import pygame
 
+from clock import Tick
 import sprites
 
 class Window:
@@ -30,10 +31,11 @@ class Window:
         pygame.display.set_caption(title)
         self._title = title
 
-    def render(self) -> None:
+    def render(self, tick: Tick) -> None:
         for z_index in sorted(sprites.layers.keys()):
             layer = sprites.layers[z_index]
             for sprite in layer:
+                sprite.update(tick)
                 sprite.draw(self.surface)
 
     def flip(self) -> None:
