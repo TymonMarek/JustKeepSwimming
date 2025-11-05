@@ -1,6 +1,6 @@
 from enum import Enum
 import time
-from typing import List, Optional
+from typing import List
 
 import pygame
 
@@ -46,6 +46,11 @@ class KeyBind:
 class KeyMap:
     def __init__(self) -> None:
         self.bindings: List[KeyBind] = []
+
+    def bind(self, name: str, description: str, keycode: KeyCode) -> KeyBind:
+        key_bind = KeyBind(name, description, keycode)
+        self.bindings.append(key_bind)
+        return key_bind
    
     async def on_key_pressed(self, tick: Tick, event: pygame.event.Event) -> None:
         for keybinding in self.bindings:
@@ -60,7 +65,7 @@ class KeyMap:
 
 class Keyboard:
     def __init__(self) -> None:
-        self.keymap: Optional[KeyMap] = None
+        self.keymap: KeyMap = KeyMap()
 
     async def on_key_pressed(self, tick: Tick, event: pygame.event.Event) -> None:
         if not self.keymap:
