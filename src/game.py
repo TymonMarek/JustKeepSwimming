@@ -35,6 +35,7 @@ class Game:
             while self.running:
                 tick = await self.clock.tick()
                 await self.events.tick(tick)
+                self.window.render()
                 self.window.flip()
         except KeyboardInterrupt:
             pass
