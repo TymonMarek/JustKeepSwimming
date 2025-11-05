@@ -1,5 +1,7 @@
 import pygame
 
+import sprites
+
 class Window:
     def __init__(self) -> None:
         self.surface = pygame.display.set_mode()
@@ -27,6 +29,12 @@ class Window:
             return
         pygame.display.set_caption(title)
         self._title = title
+
+    def render(self) -> None:
+        for z_index in sorted(sprites.layers.keys()):
+            layer = sprites.layers[z_index]
+            for sprite in layer:
+                sprite.draw(self.surface)
 
     def flip(self) -> None:
         pygame.display.flip()
