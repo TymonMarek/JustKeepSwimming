@@ -15,9 +15,9 @@ class Emitter(Generic[CallbackParams]):
     async def emit(self, *args: CallbackParams.args, **kwargs: CallbackParams.kwargs):
         for observer in self.observers:
             if inspect.iscoroutinefunction(observer.callback):
-                await observer.callback.__call__(args, kwargs)
+                await observer.callback.__call__(*args, **kwargs)
             else:
-                observer.callback.__call__(args, kwargs)
+                observer.callback.__call__(*args, **kwargs)
 
 
 class Observer(Generic[CallbackParams]):
