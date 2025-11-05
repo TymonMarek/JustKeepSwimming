@@ -3,6 +3,8 @@ from typing import Dict, List
 from pygame import Surface, Vector2
 import pygame
 
+from clock import Tick
+
 layers: Dict[int, List["Sprite"]] = {}
 
 pygame.display.init()
@@ -18,6 +20,9 @@ class Sprite:
     def __post_init__(self) -> None:
         layer = layers[self.z_index]
         layer.append(self)
+
+    def update(self, tick: Tick):
+        ...
 
     @property
     def z_index(self) -> int:
