@@ -32,6 +32,7 @@ class Window:
         self._title = title
 
     def render(self, tick: Tick) -> None:
+        self.surface.fill(pygame.Color(0, 0, 0))
         for z_index in sorted(sprites.layers.keys()):
             layer = sprites.layers[z_index]
             for sprite in layer:
