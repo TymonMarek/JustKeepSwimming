@@ -4,6 +4,7 @@ import pygame
 from clock import Clock
 from events import Events
 from input import Input
+from physics import Physics
 from render import Window
 
 pygame.init()
@@ -13,6 +14,7 @@ class Game:
         self.clock = Clock()
         self.events = Events()
         self.input = Input()
+        self.physics = Physics()
         self.window = Window()
         self.running: bool = False
         self.__post_init__()
@@ -35,7 +37,8 @@ class Game:
             while self.running:
                 tick = await self.clock.tick()
                 await self.events.tick(tick)
-                self.window.render()
+                await self.physics.update(tick)
+                self.window.render(tick)
                 self.window.flip()
         except KeyboardInterrupt:
             pass
