@@ -1,11 +1,11 @@
-from typing import Dict, List
+from typing import DefaultDict, List
 
 from pygame import Surface, Vector2
 import pygame
 
 from clock import Tick
 
-layers: Dict[int, List["Sprite"]] = {}
+layers: DefaultDict[int, List["Sprite"]] = DefaultDict(list)
 
 pygame.display.init()
 
