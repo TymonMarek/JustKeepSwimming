@@ -31,4 +31,3 @@ class Entity:
         self.velocity = self.velocity * self.efficiency
         self.velocity = Vector2(clamp(self.velocity.x, -self.max_velocity.x, self.max_velocity.x), clamp(self.velocity.y, -self.max_velocity.y, self.max_velocity.y))
         self.sprite.position = self.sprite.position + (self.velocity * tick.delta_time)
-        print(self.acceleration, self.velocity, self.sprite.position)
