@@ -7,6 +7,7 @@ from input import Input
 from physics import Physics
 from player import Player
 from render import Window
+from ui import UI
 
 pygame.init()
 
@@ -18,6 +19,7 @@ class Game:
         self.physics = Physics()
         self.window = Window()
         self.player = Player(self.input.keyboard.keymap)
+        self.ui = UI(self.window)
         self.running: bool = False
         self.__post_init__()
 
