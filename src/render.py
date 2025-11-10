@@ -1,6 +1,7 @@
 import pygame
 
 from clock import Tick
+from emitter import Emitter
 import sprites
 
 class Window:
@@ -8,15 +9,17 @@ class Window:
         self.surface = pygame.display.set_mode()
         self._title = pygame.display.get_caption()[0]
         self._size = pygame.Vector2()
+        self.resized = Emitter[pygame.Vector2]()
 
     @property
     def size(self) -> pygame.Vector2:
         return self._size
     
     @size.setter
-    def size(self, size: pygame.Vector2):
+    async def size(self, size: pygame.Vector2):
         if size == self._size:
             return
+        await self.resized.emit(self.size)
         self.surface = pygame.display.set_mode(size)
         self._size = size
 
