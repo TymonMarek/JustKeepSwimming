@@ -5,6 +5,8 @@ from emitter import Emitter
 import sprites
 
 class Window:
+    """A class representing the main application window.
+    """
     def __init__(self) -> None:
         self.surface = pygame.display.set_mode()
         self._title = pygame.display.get_caption()[0]
@@ -35,6 +37,11 @@ class Window:
         self._title = title
 
     def render(self, tick: Tick) -> None:
+        """Render all sprites to the window surface.
+
+        Args:
+            tick (Tick): The current tick information.
+        """
         self.surface.fill(pygame.Color(0, 0, 0))
         for z_index in sorted(sprites.layers.keys()):
             layer = sprites.layers[z_index]
@@ -43,4 +50,6 @@ class Window:
                 sprite.draw(self.surface)
 
     def flip(self) -> None:
+        """Update the full display surface to the screen.
+        """
         pygame.display.flip()
