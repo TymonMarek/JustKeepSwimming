@@ -5,11 +5,14 @@ import pygame
 
 from clock import Tick
 
+# A dictionary mapping z-index to a list of sprites at that z-index
 layers: DefaultDict[int, List["Sprite"]] = DefaultDict(list)
 
 pygame.display.init()
 
 class Sprite:
+    """An object that will be drawn to the screen. The contents of `Sprite.surface` will be drawn at `Sprite.position` on the target surface provided in `Sprite.draw()`.
+    """
     def __init__(self) -> None:
         self._size = Vector2(0, 0)
         self.position = Vector2(0, 0)
@@ -22,6 +25,11 @@ class Sprite:
         layer.append(self)
 
     def update(self, tick: Tick):
+        """A function that fires at every tick. Should only be used when the sprite is animated or modified.
+
+        Args:
+            tick (`Tick`): The current tick information.
+        """
         ...
 
     @property
@@ -51,4 +59,9 @@ class Sprite:
         self.surface = pygame.transform.scale(self.surface, self._size)
 
     def draw(self, target: Surface) -> None:
+        """Draws the contents of `Sprite.surface` to the `target` surface at `Sprite.position`.
+
+        Args:
+            target (`pygame.Surface`): The surface to draw to.
+        """
         target.blit(self.surface, self.position)

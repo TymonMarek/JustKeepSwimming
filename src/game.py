@@ -12,6 +12,8 @@ from ui import UI
 pygame.init()
 
 class Game:
+    """The game object represents the main game logic. It is a container for all the game's components, controls the execution cycle and binds emitters to their respective handlers.
+    """
     def __init__(self) -> None:
         self.clock = Clock()
         self.events = Events()
@@ -33,9 +35,13 @@ class Game:
         self.events.bind(pygame.QUIT, lambda tick, event: self.quit())
 
     def quit(self) -> None:
+        """Stops the game loop and exits the game after the current tick.
+        """
         self.running = False
 
     async def run(self) -> None:
+        """Starts the main game loop, which runs until `Game.quit()` is called. All tick updates are handled here. 
+        """
         self.running = True
         try:
             while self.running:

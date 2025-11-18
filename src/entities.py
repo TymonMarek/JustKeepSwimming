@@ -9,6 +9,8 @@ def clamp(n: float, min_value: float, max_value: float) -> float:
     return max(min_value, min(n, max_value))
 
 class Entity:
+    """Base class for all entities in the game world.
+    """
     def __init__(self) -> None:
         self.sprite = Sprite()
 
@@ -26,6 +28,11 @@ class Entity:
         all.append(self)
     
     def update(self, tick: Tick):
+        """A function that will run every frame. This function contains all physics calculations.
+
+        Args:
+            tick (Tick): _description_
+        """
         self.acceleration = Vector2(self.wish_direction.x * self.force.x, self.wish_direction.y * self.force.y)
         self.velocity += self.acceleration
         self.velocity = self.velocity * self.efficiency

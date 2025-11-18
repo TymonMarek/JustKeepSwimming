@@ -5,6 +5,8 @@ from clock import Tick
 from render import Window
 
 class UI:
+    """An abstraction of the `pygame_gui` library that allows for integration with the codebase.
+    """
     def __init__(self, window: Window) -> None:
         self.manager = UIManager((int(window.size.x), int(window.size.y)))
 

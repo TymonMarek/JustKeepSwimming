@@ -5,6 +5,8 @@ from entities import Entity
 from input import KeyBind, KeyCode, KeyMap
 
 class Player:
+    """An object representing the player. Handles input, entity and rendering.
+    """
     def __init__(self, keymap: KeyMap) -> None:
         self.entity = Entity()
         self.entity.sprite.size = Vector2(100, 100)
@@ -18,6 +20,11 @@ class Player:
         }
 
     def update(self, tick: Tick) -> None:
+        """Updates the wish direction based on the keys that are currently pressed.
+
+        Args:
+            tick (Tick): Information about the current tick.
+        """
         wish_direction = Vector2(0, 0)
         for key, force in self.input_map.items():
             if key.active:
