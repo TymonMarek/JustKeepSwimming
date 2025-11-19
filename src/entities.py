@@ -11,8 +11,8 @@ def clamp(n: float, min_value: float, max_value: float) -> float:
 class Entity:
     """Base class for all entities in the game world.
     """
-    def __init__(self) -> None:
-        self.sprite = Sprite()
+    def __init__(self, sprite: Sprite) -> None:
+        self.sprite = sprite
 
         self.max_velocity = Vector2(1500, 1500)
         self.acceleration: Vector2 = Vector2()
