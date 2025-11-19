@@ -36,7 +36,7 @@ class Window:
         pygame.display.set_caption(title)
         self._title = title
 
-    def render(self, tick: Tick) -> None:
+    async def render(self, tick: Tick) -> None:
         """Render all sprites to the window surface.
 
         Args:
@@ -46,7 +46,7 @@ class Window:
         for z_index in sorted(sprites.layers.keys()):
             layer = sprites.layers[z_index]
             for sprite in layer:
-                sprite.update(tick)
+                await sprite.update(tick)
                 sprite.draw(self.surface)
 
     def flip(self) -> None:
