@@ -10,8 +10,8 @@ class Window:
     def __init__(self) -> None:
         self.surface = pygame.display.set_mode()
         self._title = pygame.display.get_caption()[0]
-        self._size = pygame.Vector2()
         self.resized = Emitter[pygame.Vector2]()
+        self._size = pygame.Vector2()
 
     @property
     def size(self) -> pygame.Vector2:
