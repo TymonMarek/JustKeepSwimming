@@ -20,8 +20,8 @@ class Game:
         self.input = Input()
         self.physics = Physics()
         self.window = Window()
-        self.player = Player(self.input.keyboard.keymap)
         self.ui = UI(self.window)
+        self.player = Player(self.input.keyboard.keymap)
         self.running: bool = False
         self.__post_init__()
 
@@ -46,10 +46,12 @@ class Game:
         try:
             while self.running:
                 tick = await self.clock.tick()
+                await self.ui.update(tick)
                 await self.events.tick(tick)
                 await self.player.update(tick)
                 await self.physics.update(tick)
                 await self.window.render(tick)
+                await self.ui.render()
                 self.window.flip()
         except KeyboardInterrupt:
             pass
