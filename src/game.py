@@ -1,6 +1,8 @@
 import sys
 import pygame
 
+pygame.init()
+
 from clock import Clock
 from events import Events
 from input import Input
@@ -9,7 +11,6 @@ from player import Player
 from render import Window
 from ui import UI
 
-pygame.init()
 
 class Game:
     """The game object represents the main game logic. It is a container for all the game's components, controls the execution cycle and binds emitters to their respective handlers.
