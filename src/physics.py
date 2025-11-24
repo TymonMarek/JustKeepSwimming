@@ -5,7 +5,7 @@ class Physics:
     """A handler for all entities that support physics.
     """
     def __init__(self) -> None:
-        self.enabled = False
+        self.enabled = True
    
     async def update(self, tick: Tick):
         if not self.enabled:
