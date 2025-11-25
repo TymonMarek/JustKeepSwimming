@@ -12,7 +12,7 @@ class Emitter(Generic[CallbackParams]):
     def __init__(self) -> None:
         self.observers: List[Observer[CallbackParams]] = []
 
-    def listen(self, callback: Callable[CallbackParams, Any]) -> "Observer[CallbackParams]":
+    def observe(self, callback: Callable[CallbackParams, Any]) -> "Observer[CallbackParams]":
         """Registers a callback to be invoked when an event is emitted.
 
         Args:
@@ -21,7 +21,7 @@ class Emitter(Generic[CallbackParams]):
         Returns:
             Observer: The observer instance that was created for the callback.
         """
-        observer = Observer[CallbackParams](callback)
+        observer = Observer(self, callback)
         self.observers.append(observer)
         return observer
 
@@ -42,5 +42,14 @@ class Observer(Generic[CallbackParams]):
     Args:
         Generic (CallbackParams): A generic parameter specification for the callback parameters, specified by the emitter.
     """
-    def __init__(self, callback: Callable[CallbackParams, Any]) -> None:
+    def __init__(self, emitter: Emitter[CallbackParams], callback: Callable[CallbackParams, Any]) -> None:
         self.callback = callback
+        self.connected = True
+        self.__emitter = emitter
+
+    def disconnect(self) -> None:
+        """Disconnect the `Observer` from the `Emitter`. This causes the `Observer` to no longer fire from `Emitter.emit()`
+        """
+        if self in self.__emitter.observers:
+            self.__emitter.observers.remove(self)
+        self.connected = False

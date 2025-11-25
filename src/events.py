@@ -20,7 +20,7 @@ class Events:
             event_type (int): The pygame event ID to bind to. (Can be found in `pygame.locals`)
             callback (Callable[[Tick, pygame.event.Event], Any]): The callback to be invoked when the event is emitted.
         """
-        self.bindings[event_type].listen(callback)
+        self.bindings[event_type].observe(callback)
 
     async def tick(self, tick: Tick) -> None:
         """Processes all pygame events for the current tick and emits them to their respective bindings.

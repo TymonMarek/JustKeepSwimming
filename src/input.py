@@ -52,8 +52,8 @@ class KeyBind:
         self.since = time.time()
     
     def __post_init__(self) -> None:
-        self.pressed.listen(lambda tick, event: self.__set_state(True))
-        self.released.listen(lambda tick, event: self.__set_state(False))
+        self.pressed.observe(lambda tick, event: self.__set_state(True))
+        self.released.observe(lambda tick, event: self.__set_state(False))
 
 
 class KeyMap:
@@ -123,8 +123,8 @@ class MouseButton:
         self.since = time.time()
     
     def __post_init__(self) -> None:
-        self.pressed.listen(lambda tick, event: self.__set_state(True))
-        self.released.listen(lambda tick, event: self.__set_state(False))
+        self.pressed.observe(lambda tick, event: self.__set_state(True))
+        self.released.observe(lambda tick, event: self.__set_state(False))
 
 
 class MouseButtons:
