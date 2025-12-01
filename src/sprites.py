@@ -8,8 +8,9 @@ import pygame
 from clock import Tick
 from emitter import Emitter
 
-# A dictionary mapping z-index to a list of sprites at that z-index
 layers: DefaultDict[int, List["Sprite"]] = DefaultDict(list)
+""" A dictionary mapping z-index to a list of sprites at that z-index
+"""
 
 pygame.display.init()
 
