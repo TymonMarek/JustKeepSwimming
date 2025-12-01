@@ -37,7 +37,7 @@ class Emitter(Generic[CallbackParams]):
 
 class Observer(Generic[CallbackParams]):
     """A object which stores the callback that is executed when its corresponding emitter emits.
-    Do not create this object directly; use Emitter.listen instead.
+    Do not create this object directly; use Emitter.observe instead.
 
     Args:
         Generic (CallbackParams): A generic parameter specification for the callback parameters, specified by the emitter.
