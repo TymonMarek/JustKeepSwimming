@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
-            python-version: ${{ matrix.os == 'macos-latest' && '3.13' || 'latest' }}
+            python-version: ${{ matrix.os == 'macos-latest' && '3.13' || '3.x' }}
 
       - name: Install patchelf
         if: matrix.os == 'ubuntu-latest'
