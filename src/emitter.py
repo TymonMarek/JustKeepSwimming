@@ -1,10 +1,8 @@
-from typing import Any, Awaitable, Callable, Generic, List, ParamSpec
+from typing import Awaitable, Callable, Generic, List, ParamSpec
 import inspect
 import asyncio
 
 CallbackParams = ParamSpec("CallbackParams")
-
-type CallBackType[**Params] = Callable[Params, Awaitable[Any] | None]
 
 class Emitter(Generic[CallbackParams]):
     """An event emitter that allows observers to listen for and respond to events via a callback.
@@ -15,7 +13,7 @@ class Emitter(Generic[CallbackParams]):
     def __init__(self) -> None:
         self.observers: List[Observer[CallbackParams]] = []
 
-    def observe(self, callback: CallBackType[CallbackParams]) -> "Observer[CallbackParams]":
+    def observe(self, callback: Callable[CallbackParams, Awaitable[None] | None]) -> "Observer[CallbackParams]":
         """Registers a callback to be invoked when an event is emitted.
 
         Args:
@@ -28,7 +26,7 @@ class Emitter(Generic[CallbackParams]):
         self.observers.append(observer)
         return observer
     
-    def once(self, callback: CallBackType[CallbackParams]) -> "Observer[CallbackParams]":
+    def once(self, callback: Callable[CallbackParams, Awaitable[None] | None]) -> "Observer[CallbackParams]":
         """Registers a callback to be invoked only once when an event is emitted.
 
         Args:
@@ -101,7 +99,7 @@ class Observer(Generic[CallbackParams]):
     Args:
         Generic (CallbackParams): A generic parameter specification for the callback parameters, specified by the emitter.
     """
-    def __init__(self, emitter: Emitter[CallbackParams], callback: CallBackType[CallbackParams]) -> None:
+    def __init__(self, emitter: Emitter[CallbackParams], callback: Callable[CallbackParams, Awaitable[None] | None]) -> None:
         self.callback = callback
         self.connected = True
         self.__emitter = emitter
