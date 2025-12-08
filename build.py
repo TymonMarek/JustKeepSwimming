@@ -7,6 +7,7 @@ import logging
 import sys
 import os
 import re
+import platform
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -36,7 +37,6 @@ class VirtualEnvironment:
         self.python_executable = self.bin_path / ("python.exe" if os.name == "nt" else "python")
         self.pip_executable = self.bin_path / ("pip.exe" if os.name == "nt" else "pip")
         self.upgrade_to_newest()
-
 
     def run_as(self, runner: Path, target: Optional[Path | str] = None, args: Optional[List[str]] = None) -> None:
         command = [str(runner)]
@@ -81,35 +81,42 @@ class VirtualEnvironment:
             return False
 
     def install_from_requirements(self, requirements_path: Path) -> None:
-        subprocess.run([str(self.pip_executable), "install", "-r", str(requirements_path)], check=True, text=True)
+        subprocess.run(
+            [str(self.pip_executable), "install", "-r", str(requirements_path)],
+            check=True,
+            text=True
+        )
 
     def upgrade_to_newest(self) -> None:
+        # python -m pip install --upgrade ...
         self.run("-m", ["pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
-        version = subprocess.check_output([str(self.python_executable), "--version"], text=True).strip()
+        version = subprocess.check_output(
+            [str(self.python_executable), "--version"], text=True
+        ).strip()
         logger.info(f"Virtual environment Python version: {version}")
 
 
 def is_git_installed() -> bool:
     try:
-        subprocess.check_output(['git', '--version'])
+        subprocess.check_output(["git", "--version"])
         return True
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
 
 def is_patchelf_installed() -> bool:
     try:
-        subprocess.check_output(['patchelf', '--version'])
+        subprocess.check_output(["patchelf", "--version"])
         return True
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return False
 
 
 def get_github_commit_id() -> Optional[str]:
     try:
-        commit_id = subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+        commit_id = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
         return commit_id[:7]
-    except subprocess.CalledProcessError:
+    except (subprocess.CalledProcessError, FileNotFoundError):
         return None
 
 
@@ -119,13 +126,21 @@ def setup_build_directory(name: str, path: Path) -> Path:
 
 
 def check_required_packages(purpose: str, packages: Set[str]) -> None:
-    missing = {pkg for pkg in packages if subprocess.run(['pip', 'show', pkg], capture_output=True).returncode != 0}
+    missing = {
+        pkg
+        for pkg in packages
+        if subprocess.run(["pip", "show", pkg], capture_output=True).returncode != 0
+    }
     if missing:
         raise NotInstalled(", ".join(missing))
 
 
 def require_packages_from_file(purpose: str, requirements_path: Path) -> None:
-    packages = {line.strip() for line in requirements_path.read_text().splitlines() if line.strip() and not line.startswith("#")}
+    packages = {
+        line.strip()
+        for line in requirements_path.read_text().splitlines()
+        if line.strip() and not line.startswith("#")
+    }
     check_required_packages(purpose, packages)
 
 
@@ -149,7 +164,11 @@ class LicenseMetadata:
 def read_license_metadata(license_path: Path) -> LicenseMetadata:
     if not license_path.exists():
         return LicenseMetadata("", "", "")
-    lines = [line.strip() for line in license_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    lines = [
+        line.strip()
+        for line in license_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
 
     header = ""
     for line in lines[:5]:
@@ -177,13 +196,14 @@ def read_license_metadata(license_path: Path) -> LicenseMetadata:
 def main() -> None:
     if not is_git_installed():
         raise NotInstalled("Git")
-    
-    if os.name == "posix" and not is_patchelf_installed():
+
+    # Only require patchelf on Linux, not on macOS
+    if platform.system() == "Linux" and not is_patchelf_installed():
         raise NotInstalled("patchelf")
 
     if not Path("assets").exists():
         raise FileNotFoundError("Assets directory not found.")
-    
+
     require_packages_from_file("development", Path("requirements.txt"))
 
     commit_id = get_github_commit_id()
@@ -203,7 +223,13 @@ def main() -> None:
     product_name = Path.cwd().name.strip()
     description_text = read_first_non_title_line(Path("README.md"))
     full_description = f"{description_text} (Build {commit_id})" if commit_id else description_text
-    copyright_text = f"{license.name} License (c) {license.owner} {license.year}"
+    copyright_text = (
+        f"{license.name} License (c) {license.owner} {license.year}"
+        if license.name and license.owner and license.year
+        else ""
+    )
+
+    onefile_tempdir = Path.home() / ".cache" / "nuitka"
 
     build_args = [
         "--follow-imports",
@@ -211,8 +237,9 @@ def main() -> None:
         f"--product-name={product_name}",
         f"--file-description={full_description}",
         f"--copyright={copyright_text}",
-        f"--include-package=scenes",
+        "--include-package=scenes",
         "--mode=onefile",
+        f"--onefile-tempdir-spec={onefile_tempdir}",
     ]
 
     assets_dir = Path("assets")
@@ -235,7 +262,9 @@ def main() -> None:
     build_args.append("src/main.py")
 
     nuitka_executable = venv.bin_path / ("nuitka.exe" if os.name == "nt" else "nuitka")
-    logger.info(f"Building {product_name} from commit {commit_id} with an {license.name} license. This may take a while...")
+    logger.info(
+        f"Building {product_name} from commit {commit_id} with an {license.name} license. This may take a while..."
+    )
     venv.run_as(nuitka_executable, None, build_args)
 
     logger.info(f"Build completed. Output located in {dist_dir}")
