@@ -16,15 +16,15 @@ class Player:
     """An object representing the player. Handles input, entity and rendering.
     """
     def __init__(self, keymap: KeyMap) -> None:
-        self.animated_sprite = AnimatedSprite(frame_size=Vector2(48, 48), path=Path("assets/spritesheet/turtle.png"))
-        self.animated_sprite.size = Vector2(100, 100)
-        self.animated_sprite.position = Vector2(300, 300)
-        self.animated_sprite.rotation = 100
+        self.sprite = AnimatedSprite(frame_size=Vector2(48, 48), path=Path("assets/spritesheet/turtle.png"))
+        self.sprite.size = Vector2(100, 100)
+        self.sprite.position = Vector2(300, 300)
+        self.sprite.rotation = 100
 
         self.tracks: Dict[AnimationType, AnimationTrack] = {}
-        self.tracks[AnimationType.Idle] = self.animated_sprite.play(Animation(AnimationType.Idle, speed=1/10, loop=True), AnimationPriority.Low)
+        self.tracks[AnimationType.Idle] = self.sprite.play(Animation(AnimationType.Idle, speed=1/10, loop=True), AnimationPriority.Low)
 
-        self.entity = Entity(self.animated_sprite)
+        self.entity = Entity(self.sprite)
         self.input_map: Dict[KeyBind, Vector2] = {
             keymap.bind("Move upwards", "Moves the player's character upwards", KeyCode.W): Vector2(0, -1),
             keymap.bind("Move left", "Moves the player's character to the left", KeyCode.A): Vector2(-1, 0),
@@ -43,7 +43,7 @@ class Player:
         self.entity.wish_direction = wish_direction.normalize() if is_moving else Vector2(0, 0)
 
         if is_moving:
-            self.animated_sprite.mirrored = wish_direction.x < 0
+            self.sprite.mirrored = wish_direction.x < 0
 
             vertical_input = 0
             for key, force in self.input_map.items():
@@ -54,17 +54,17 @@ class Player:
             max_angle = 180 * (math.pi / 180)
             target_rotation = -vertical_input * max_angle
             lerp_factor = 0.2
-            self.animated_sprite.rotation = lerp(self.animated_sprite.rotation, target_rotation, lerp_factor)
+            self.sprite.rotation = lerp(self.sprite.rotation, target_rotation, lerp_factor)
 
         else:
             lerp_factor = 0.2
-            self.animated_sprite.rotation = lerp(self.animated_sprite.rotation, 0, lerp_factor)
+            self.sprite.rotation = lerp(self.sprite.rotation, 0, lerp_factor)
         
         walk_track = self.tracks.get(AnimationType.Walk)
 
         if is_moving:
             if not walk_track:
-                walk_track = self.animated_sprite.play(
+                walk_track = self.sprite.play(
                     Animation(AnimationType.Walk, speed=1 / 7.5, loop=True),
                     AnimationPriority.Medium,
                 )

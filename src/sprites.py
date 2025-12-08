@@ -75,6 +75,16 @@ class Sprite:
             final_image = pygame.transform.flip(final_image, True, False)
         target.blit(final_image, self.position)
 
+    @staticmethod
+    def from_path(path: Path) -> "Sprite":
+        sprite = Sprite()
+        try:
+            sprite.surface = pygame.image.load(path).convert_alpha()
+            sprite.size = Vector2(sprite.surface.get_size())
+        except FileNotFoundError:
+            print(f"Failed to load {path}, file not found.")
+        return sprite
+
 
 class AnimationType(Enum):
     Idle = 0

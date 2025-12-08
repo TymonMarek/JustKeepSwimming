@@ -1,15 +1,15 @@
 import sys
 import pygame
 
+from stage import Stage
+
 pygame.init()
 
 from clock import Clock
 from events import Events
 from input import Input
-from physics import Physics
 from player import Player
-from render import Window
-from ui import UI
+from window import Window
 
 
 class Game:
@@ -19,14 +19,14 @@ class Game:
         self.clock = Clock()
         self.events = Events()
         self.input = Input()
-        self.physics = Physics()
         self.window = Window()
-        self.ui = UI(self.window)
         self.player = Player(self.input.keyboard.keymap)
+        self.stage = Stage(self.player, self.window)
         self.running: bool = False
         self.__post_init__()
 
     def __post_init__(self) -> None:
+        ## Bind Pygame input events to input event handlers.
         self.events.bind(pygame.MOUSEBUTTONDOWN, self.input.mouse.buttons.on_pressed)
         self.events.bind(pygame.MOUSEBUTTONUP, self.input.mouse.buttons.on_released)
         self.events.bind(pygame.MOUSEWHEEL, self.input.mouse.scroll.on_scroll)
@@ -35,26 +35,29 @@ class Game:
         self.events.bind(pygame.KEYUP, self.input.keyboard.on_key_released)
         self.events.bind(pygame.QUIT, lambda tick, event: self.quit())
 
+    async def start(self) -> None:
+        """Starts the game by running the main game loop.
+        """
+        await self.stage.load_scene("default")
+        try:
+            await self._game_loop()
+        except KeyboardInterrupt:
+            self.quit()
+
     def quit(self) -> None:
         """Stops the game loop and exits the game after the current tick.
         """
         self.running = False
 
-    async def run(self) -> None:
+    async def _game_loop(self) -> None:
         """Starts the main game loop, which runs until `Game.quit()` is called. All tick updates are handled here. 
         """
         self.running = True
-        try:
-            while self.running:
-                tick = await self.clock.tick()
-                await self.ui.update(tick)
-                await self.events.tick(tick)
-                await self.player.update(tick)
-                await self.physics.update(tick)
-                await self.window.render(tick)
-                await self.ui.render()
-                self.window.flip()
-        except KeyboardInterrupt:
-            pass
+        while self.running:
+            self.window.surface.fill((0, 0, 0))
+            tick = await self.clock.tick()
+            await self.events.tick(tick)
+            await self.stage.update(tick)
+            self.window.flip()
         pygame.quit()
         sys.exit(0)

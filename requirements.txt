@@ -1,3 +1,2 @@
 pygame-ce
-pygame_gui
 nuitka

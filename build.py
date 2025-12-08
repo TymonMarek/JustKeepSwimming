@@ -1,5 +1,4 @@
 from typing import IO, Any, Callable, List, Optional, Set
-from importlib import util as importlib_util
 from dataclasses import dataclass
 from pathlib import Path
 import subprocess
@@ -82,7 +81,7 @@ class VirtualEnvironment:
             return False
 
     def install_from_requirements(self, requirements_path: Path) -> None:
-        subprocess.run([str(self.pip_executable), "install", "-r", str(requirements_path)], check=True)
+        subprocess.run([str(self.pip_executable), "install", "-r", str(requirements_path)], check=True, text=True)
 
     def upgrade_to_newest(self) -> None:
         self.run("-m", ["pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
@@ -185,7 +184,6 @@ def main() -> None:
     if not Path("assets").exists():
         raise FileNotFoundError("Assets directory not found.")
     
-
     require_packages_from_file("development", Path("requirements.txt"))
 
     commit_id = get_github_commit_id()
@@ -198,8 +196,7 @@ def main() -> None:
     dist_dir = setup_build_directory("dist", Path("dist"))
     venv = VirtualEnvironment(build_dir)
 
-    venv.install_from_requirements(Path("requirements/building.txt"))
-    venv.install_from_requirements(Path("requirements/production.txt"))
+    venv.install_from_requirements(Path("requirements.txt"))
 
     license = read_license_metadata(Path("LICENSE"))
 
@@ -214,6 +211,7 @@ def main() -> None:
         f"--product-name={product_name}",
         f"--file-description={full_description}",
         f"--copyright={copyright_text}",
+        f"--include-data-dir={"src/scenes"}=src/scenes",
         "--mode=onefile",
     ]
 
@@ -222,27 +220,6 @@ def main() -> None:
         build_args.append(f"--include-data-dir={str(assets_dir.resolve())}=assets")
     else:
         logger.warning("No assets directory found at ./assets")
-
-    pygame_gui_spec = importlib_util.find_spec("pygame_gui")
-    pygame_gui_dir = None
-    if pygame_gui_spec:
-        pygame_gui_base: Optional[Path] = None
-        if pygame_gui_spec.submodule_search_locations:
-            pygame_gui_base = Path(pygame_gui_spec.submodule_search_locations[0])
-        elif pygame_gui_spec.origin:
-            pygame_gui_base = Path(pygame_gui_spec.origin).parent
-        if pygame_gui_base:
-            pygame_gui_dir = pygame_gui_base / "data"
-    if not pygame_gui_dir or not pygame_gui_dir.exists():
-        local_pygame_gui = Path("pygame_gui") / "data"
-        if local_pygame_gui.exists():
-            pygame_gui_dir = local_pygame_gui
-
-    if pygame_gui_dir and pygame_gui_dir.exists():
-        build_args.append(f"--include-data-dir={str(pygame_gui_dir.resolve())}=pygame_gui/data")
-        logger.info(f"Including pygame_gui data from {pygame_gui_dir.resolve()}")
-    else:
-        logger.warning("pygame_gui/data not found; This may cause the build to crash on start!")
 
     icon = Path("assets/icon.png")
     if icon.exists():

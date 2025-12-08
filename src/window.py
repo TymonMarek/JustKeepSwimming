@@ -1,8 +1,9 @@
+from typing import Dict, List
 import pygame
 
-from clock import Tick
 from emitter import Emitter
-import sprites
+from sprites import Sprite
+from clock import Tick
 
 class Window:
     """A class representing the main application window.
@@ -36,15 +37,15 @@ class Window:
         pygame.display.set_caption(title)
         self._title = title
 
-    async def render(self, tick: Tick) -> None:
+    async def render(self, tick: Tick, layers: Dict[int, List[Sprite]]) -> None:
         """Render all sprites to the window surface.
 
         Args:
             tick (Tick): The current tick information.
         """
         self.surface.fill(pygame.Color(0, 0, 0))
-        for z_index in sorted(sprites.layers.keys()):
-            layer = sprites.layers[z_index]
+        for z_index in sorted(layers.keys()):
+            layer = layers[z_index]
             for sprite in layer:
                 await sprite.update(tick)
                 sprite.draw(self.surface)
