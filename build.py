@@ -261,7 +261,10 @@ def main() -> None:
 
     build_args.append("src/main.py")
 
-    nuitka_executable = venv.bin_path / ("nuitka.exe" if os.name == "nt" else "nuitka")
+    if os.name == "nt":
+        nuitka_executable = venv.bin_path / "nuitka.bat"
+    else:
+        nuitka_executable = venv.bin_path / "nuitka"
     logger.info(
         f"Building {product_name} from commit {commit_id} with an {license.name} license. This may take a while..."
     )
