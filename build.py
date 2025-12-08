@@ -211,7 +211,7 @@ def main() -> None:
         f"--product-name={product_name}",
         f"--file-description={full_description}",
         f"--copyright={copyright_text}",
-        f"--include-data-dir={"src/scenes"}=src/scenes",
+        f"--include-package=scenes",
         "--mode=onefile",
     ]
 
