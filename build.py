@@ -7,7 +7,6 @@ import logging
 import sys
 import os
 import re
-import platform
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -196,10 +195,6 @@ def read_license_metadata(license_path: Path) -> LicenseMetadata:
 def main() -> None:
     if not is_git_installed():
         raise NotInstalled("Git")
-
-    # Only require patchelf on Linux, not on macOS
-    if platform.system() == "Linux" and not is_patchelf_installed():
-        raise NotInstalled("patchelf")
 
     if not Path("assets").exists():
         raise FileNotFoundError("Assets directory not found.")
