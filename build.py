@@ -1,4 +1,4 @@
-from typing import IO, Any, Callable, List, Optional, Set
+from typing import IO, Any, Callable, List
 from dataclasses import dataclass
 from pathlib import Path
 import subprocess
@@ -150,6 +150,7 @@ def main() -> None:
         f"--file-version={version}",
         f"--include-package=scenes",
         f"--onefile-tempdir-spec={tempdir}",
+        f"--copyright={copyright_text}"
     ]
 
     assets = Path("assets")
