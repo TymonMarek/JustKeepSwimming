@@ -1,0 +1,60 @@
+name: Build
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - name: Install patchelf (Linux only)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y patchelf
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build with Nuitka
+        run: |
+          python build.py
+
+      - name: Select correct output file
+        id: out
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            echo "file=dist/main.exe" >> $GITHUB_OUTPUT
+          else
+            echo "file=dist/main.bin" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Determine artifact name
+        id: naming
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then OS="linux"; fi
+          if [ "${{ runner.os }}" = "macOS" ]; then OS="macos"; fi
+          if [ "${{ runner.os }}" = "Windows" ]; then OS="windows"; fi
+          echo "os_name=$OS" >> $GITHUB_OUTPUT
+
+      - name: Upload final binary
+        uses: actions/upload-artifact@v5
+        with:
+          name: JustKeepSwimming-${{ github.event.release.tag_name }}-${{ steps.naming.outputs.os_name }}
+          path: ${{ steps.out.outputs.file }}
