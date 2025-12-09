@@ -178,11 +178,13 @@ class Mouse:
         self.position = pygame.Vector2()
         self.delta = pygame.Vector2()
         self.direction = pygame.Vector2()
+        self.moved = Emitter[Tick, pygame.event.Event]()
 
-    def on_mouse_moved(self, tick: Tick, event: pygame.event.Event) -> None:
+    async def on_mouse_moved(self, tick: Tick, event: pygame.event.Event) -> None:
         self.delta = pygame.Vector2(pygame.mouse.get_rel())
         self.position = pygame.Vector2(pygame.mouse.get_pos())
         self.direction = self.delta.normalize() if self.delta.magnitude() > 0 else pygame.Vector2(0, 0)
+        await self.moved.emit(tick, event)
 
 
 class Input:
