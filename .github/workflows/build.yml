@@ -37,11 +37,7 @@ jobs:
 
       - name: Build with Nuitka
         run: |
-          if [ "${{ runner.os }}" = "Windows" ]; then
-            python build.py --nuitka-args "--windows-icon-from-ico=assets\\icon.png"
-          else
-            python build.py --nuitka-args "--windows-icon-from-ico=assets/icon.png"
-          fi
+          python build.py
 
       - name: Select correct output file
         id: out
