@@ -1,3 +1,4 @@
 asyncio
 pygame-ce
 rich
+black

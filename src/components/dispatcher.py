@@ -6,6 +6,7 @@ from src.utilities.signal import Signal
 
 type EventType = int
 
+
 class CustomEvent:
     def __init__(self, event_type: int) -> None:
         self.logger = logging.getLogger(__name__ + ".CustomEvent")
@@ -14,6 +15,7 @@ class CustomEvent:
     def dispatch(self) -> None:
         self.logger.info(f"Dispatching custom event: {self.event_type}")
         pygame.event.post(pygame.event.Event(self.event_type))
+
 
 class Dispatcher:
     def __init__(self) -> None:
@@ -38,7 +40,9 @@ class Dispatcher:
     async def _dispatch_event(self, event: PygameEvent) -> None:
         if event.type in self.event_signals:
             signal = self.event_signals[event.type]
-            self.logger.debug(f"Dispatching {event} to {len(signal.connections)} connections.")
+            self.logger.debug(
+                f"Dispatching {event} to {len(signal.connections)} connections."
+            )
             await signal.emit(event)
 
     async def process_events(self) -> None:

@@ -11,6 +11,7 @@ DEFAULT_IS_VSYNC_ENABLED: bool = False
 
 import logging
 
+
 class Window:
     def __init__(self):
         self.logger = logging.getLogger(__name__ + ".Window")
@@ -22,8 +23,12 @@ class Window:
         self._create_window()
 
     def _create_window(self):
-        self.logger.debug(f"Creating window: title={self._title}, size={self._size}, vsync={self._vsync_enabled}, flags={self._flags}")
-        self.surface = pygame.display.set_mode(self._size, flags=self._flags, vsync=self._vsync_enabled)
+        self.logger.debug(
+            f"Creating window: title={self._title}, size={self._size}, vsync={self._vsync_enabled}, flags={self._flags}"
+        )
+        self.surface = pygame.display.set_mode(
+            self._size, flags=self._flags, vsync=self._vsync_enabled
+        )
         pygame.display.set_caption(self._title)
 
     @property
@@ -65,4 +70,3 @@ class Window:
         self.logger.debug(f"Setting window flags: {value}")
         self._flags = value
         self._create_window()
-

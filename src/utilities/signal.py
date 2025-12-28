@@ -9,21 +9,28 @@ import asyncio
 
 import logging
 
+
 class SignalException(Exception):
     pass
+
 
 class ConnectionNotFoundException(SignalException):
     pass
 
+
 class Connection[**P]:
-    def __init__(self, signal: "Signal[P]", callback: Callable[P, Awaitable[Any]]) -> None:
+    def __init__(
+        self, signal: "Signal[P]", callback: Callable[P, Awaitable[Any]]
+    ) -> None:
         self.logger = logging.getLogger(__name__ + ".Connection")
         self.callback: Callable[P, Awaitable[Any]] = callback
         self.signal = signal
 
     async def fire(self, *args: P.args, **kwargs: P.kwargs) -> None:
         if self.callback is not None:
-            self.logger.debug(f"Firing callback {self.callback} with args={args}, kwargs={kwargs}")
+            self.logger.debug(
+                f"Firing callback {self.callback} with args={args}, kwargs={kwargs}"
+            )
             await self.callback(*args, **kwargs)
 
     @property
@@ -33,6 +40,7 @@ class Connection[**P]:
     def disconnect(self) -> None:
         self.logger.debug("Disconnecting connection.")
         self.signal.disconnect(self)
+
 
 class Signal[**P]:
     def __init__(self) -> None:
@@ -57,7 +65,9 @@ class Signal[**P]:
             future: Future[list[None]] = asyncio.get_event_loop().create_future()
             future.set_result([])
             return future
-        self.logger.debug(f"Emitting signal to {len(self.connections)} connections with args={args}, kwargs={kwargs}")
+        self.logger.debug(
+            f"Emitting signal to {len(self.connections)} connections with args={args}, kwargs={kwargs}"
+        )
         return asyncio.gather(
             *(connection.fire(*args, **kwargs) for connection in self.connections)
         )

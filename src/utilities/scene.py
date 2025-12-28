@@ -2,6 +2,7 @@ import logging
 from src.components.clock import TickData
 from src.utilities.ecs import Component, Entity
 
+
 class System:
     def __init__(self):
         self.logger = logging.getLogger(__name__ + ".System")
@@ -9,6 +10,7 @@ class System:
     def update(self, scene: "Scene", tick_data: TickData) -> None:
         self.logger.debug(f"System update called with tick_data={tick_data}")
         ...
+
 
 class Scene:
     def __init__(self):
@@ -44,13 +46,21 @@ class Scene:
         self.logger.info(f"Adding system: {system}")
         self.systems.append(system)
 
-    def get_matching_entities(self, *component_types: type) -> dict[Entity, tuple[Component, ...]]:
+    def get_matching_entities(
+        self, *component_types: type
+    ) -> dict[Entity, tuple[Component, ...]]:
         self.logger.debug(f"Getting entities matching components: {component_types}")
         result: dict[Entity, tuple[Component, ...]] = {}
         for entity in self.entities:
             entity_components = self.components.get(entity.id, {})
-            if all(component_type in entity_components for component_type in component_types):
-                result[entity] = tuple(entity_components[component_type] for component_type in component_types)
+            if all(
+                component_type in entity_components
+                for component_type in component_types
+            ):
+                result[entity] = tuple(
+                    entity_components[component_type]
+                    for component_type in component_types
+                )
         return result
 
     def update(self, tick_data: TickData) -> None:

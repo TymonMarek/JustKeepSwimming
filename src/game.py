@@ -12,6 +12,7 @@ from src.components.stage import Stage
 
 logger = logging.getLogger(__name__)
 
+
 class Game:
     def __init__(self):
         logger.info("Initializing process...")
@@ -23,9 +24,11 @@ class Game:
 
     async def initialize(self) -> None:
         logger.debug("Setting up quit event handler.")
+
         async def on_quit(event: pygame.event.Event) -> None:
             logger.info("Received QUIT, exiting the process on the next tick...")
             self.stop()
+
         self.dispatcher.get_signal_for(pygame.QUIT).connect(on_quit)
 
     async def tick(self) -> None:
@@ -40,6 +43,7 @@ class Game:
         logger.info("Exiting process...")
         pygame.quit()
         import sys
+
         sys.exit(0)
 
     def stop(self) -> None:

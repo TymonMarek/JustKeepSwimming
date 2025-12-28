@@ -1,13 +1,14 @@
 from dataclasses import dataclass
 from typing import Optional
 
-from pygame.time import Clock as PygameClock 
+from pygame.time import Clock as PygameClock
 
 from src.utilities.signal import Signal
 
 from datetime import datetime
 
 PYGAME_DELTA_TIME_SCALE = 0.001
+
 
 class ClockException(Exception):
     pass
@@ -24,6 +25,7 @@ class TickData:
 
 import logging
 
+
 class Clock:
     def __init__(self):
         self.logger = logging.getLogger(__name__ + ".Clock")
@@ -34,7 +36,10 @@ class Clock:
         self.running = False
 
     async def tick(self):
-        delta_time: float = self.__pygame_clock.tick(self.target_framerate or 0) * PYGAME_DELTA_TIME_SCALE
+        delta_time: float = (
+            self.__pygame_clock.tick(self.target_framerate or 0)
+            * PYGAME_DELTA_TIME_SCALE
+        )
         tick_data = TickData(delta_time)
         await self.on_tick.emit(tick_data)
 
@@ -44,7 +49,7 @@ class Clock:
         self.start_timestamp = datetime.now().timestamp()
         while self.running:
             await self.tick()
-            
+
     def stop(self):
         if not self.running:
             raise ClockNotRunningException()
