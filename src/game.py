@@ -5,7 +5,7 @@ pygame.init()
 from src.components.dispatcher import Dispatcher
 from src.components.window import Window
 from src.components.clock import Clock
-from src.utilities.stage import Stage
+from src.components.stage import Stage
 
 class Game:
     def __init__(self):
