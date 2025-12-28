@@ -22,7 +22,7 @@ class Window:
         self._create_window()
 
     def _create_window(self):
-        self.logger.info(f"Creating window: title={self._title}, size={self._size}, vsync={self._vsync_enabled}, flags={self._flags}")
+        self.logger.debug(f"Creating window: title={self._title}, size={self._size}, vsync={self._vsync_enabled}, flags={self._flags}")
         self.surface = pygame.display.set_mode(self._size, flags=self._flags, vsync=self._vsync_enabled)
         pygame.display.set_caption(self._title)
 
@@ -32,7 +32,7 @@ class Window:
 
     @title.setter
     def title(self, value: str):
-        self.logger.info(f"Setting window title: {value}")
+        self.logger.debug(f"Setting window title: {value}")
         self._title = value
         pygame.display.set_caption(self._title)
 
@@ -42,7 +42,7 @@ class Window:
 
     @size.setter
     def size(self, value: Vector2):
-        self.logger.info(f"Setting window size: {value}")
+        self.logger.debug(f"Setting window size: {value}")
         self._size = value
         self._create_window()
 
@@ -52,7 +52,7 @@ class Window:
 
     @vsync.setter
     def vsync(self, value: bool):
-        self.logger.info(f"Setting vsync: {value}")
+        self.logger.debug(f"Setting vsync: {value}")
         self._vsync_enabled = value
         self._create_window()
 
@@ -62,7 +62,7 @@ class Window:
 
     @flags.setter
     def flags(self, value: int):
-        self.logger.info(f"Setting window flags: {value}")
+        self.logger.debug(f"Setting window flags: {value}")
         self._flags = value
         self._create_window()
 

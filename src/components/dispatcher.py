@@ -30,7 +30,7 @@ class Dispatcher:
     def get_signal_for(self, event_type: EventType) -> Signal[PygameEvent]:
         signal = self.event_signals.get(event_type)
         if signal is None:
-            self.logger.info(f"Creating signal for event type: {event_type}")
+            self.logger.debug(f"Creating signal for event type: {event_type}")
             signal = Signal[PygameEvent]()
             self.event_signals[event_type] = signal
         return self.event_signals[event_type]

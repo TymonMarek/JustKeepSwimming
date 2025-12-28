@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 
 class Game:
     def __init__(self):
-        logger.info("Initializing Game...")
+        logger.info("Initializing process...")
         self.dispatcher = Dispatcher()
         self.window = Window()
         self.clock = Clock()
@@ -25,9 +25,8 @@ class Game:
     async def initialize(self) -> None:
         logger.debug("Setting up quit event handler.")
         async def on_quit(event: pygame.event.Event) -> None:
-            logger.info(f"QUIT event received: {event}")
+            logger.info("Received QUIT, exiting the game on the next tick...")
             self.stop()
-            logger.debug("Game loop stop requested.")
         self.dispatcher.get_signal_for(pygame.QUIT).connect(on_quit)
 
     async def tick(self) -> None:
@@ -35,16 +34,15 @@ class Game:
         await self.clock.tick()
 
     async def run(self) -> None:
-        logger.info("Starting game loop.")
+        logger.info("Process ready!")
         self.running = True
         while self.running:
             await self.tick()
-        logger.info("Game loop ended. Quitting pygame.")
+        logger.info("Exiting process...")
         pygame.quit()
-        logger.info("Exiting process.")
         import sys
         sys.exit(0)
 
     def stop(self) -> None:
-        logger.info("Stopping game loop.")
+        logger.info("Stopping game loop...")
         self.running = False

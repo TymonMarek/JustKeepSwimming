@@ -1,12 +1,17 @@
 import asyncio
 import logging
 import argparse
+from rich.logging import RichHandler
 
 from src.game import Game
 
 def setup_logging(verbosity: int):
     level = [logging.ERROR, logging.WARNING, logging.INFO, logging.DEBUG][min(3, max(0, verbosity))]
-    logging.basicConfig(level=level, format='%(asctime)s %(levelname)s %(name)s: %(message)s')
+    logging.basicConfig(
+        level=level,
+        format='%(levelname)s %(name)s: %(message)s',
+        handlers=[RichHandler(show_time=False)]
+    )
 
 async def main():
     game = Game()

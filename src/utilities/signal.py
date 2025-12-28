@@ -31,7 +31,7 @@ class Connection[**P]:
         return self in self.signal.connections
 
     def disconnect(self) -> None:
-        self.logger.info("Disconnecting connection.")
+        self.logger.debug("Disconnecting connection.")
         self.signal.disconnect(self)
 
 class Signal[**P]:
@@ -40,7 +40,7 @@ class Signal[**P]:
         self.connections: list[Connection[P]] = []
 
     def connect(self, callback: Callable[P, Awaitable[Any]]) -> Connection[P]:
-        self.logger.info(f"Connecting callback: {callback}")
+        self.logger.debug(f"Connecting callback: {callback}")
         connection = Connection[P](self, callback)
         self.connections.append(connection)
         return connection
@@ -49,7 +49,7 @@ class Signal[**P]:
         if not connection in self.connections:
             self.logger.error("Connection not found during disconnect.")
             raise ConnectionNotFoundException()
-        self.logger.info("Disconnecting connection.")
+        self.logger.debug("Disconnecting connection.")
         self.connections.remove(connection)
 
     def emit(self, *args: P.args, **kwargs: P.kwargs) -> Future[list[None]]:
@@ -63,7 +63,7 @@ class Signal[**P]:
         )
 
     async def wait(self) -> None:
-        self.logger.info("Waiting for signal emission.")
+        self.logger.debug("Waiting for signal emission.")
         future: Future[None] = asyncio.get_event_loop().create_future()
 
         async def _on_emit(*args: P.args, **kwargs: P.kwargs) -> None:
@@ -80,7 +80,7 @@ class Signal[**P]:
 
         async def wrapper(*args: P.args, **kwargs: P.kwargs) -> None:
             if connection:
-                self.logger.info("Disconnecting after one emission.")
+                self.logger.debug("Disconnecting after one emission.")
                 connection.disconnect()
             await callback(*args, **kwargs)
 
