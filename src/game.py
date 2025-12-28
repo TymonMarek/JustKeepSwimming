@@ -1,5 +1,7 @@
 import pygame
 
+from src.utilities.context import Context
+
 pygame.init()
 
 from src.components.dispatcher import Dispatcher
@@ -12,9 +14,15 @@ class Game:
         self.dispatcher = Dispatcher() 
         self.window = Window()
         self.clock = Clock()
-        self.stage = Stage()
+        self.stage = Stage(Context(window=self.window))
         self.running = False
-        
+
+    async def initialize(self) -> None:
+        async def on_quit(event: pygame.event.Event) -> None:
+            print("Received quit event, stopping game loop at next tick...")
+            self.stop()
+        self.dispatcher.get_signal_for(pygame.QUIT).connect(on_quit)
+
     async def tick(self) -> None:
         await self.dispatcher.process_events()
         await self.clock.tick()
@@ -24,6 +32,6 @@ class Game:
         while self.running:
             await self.tick()
         pygame.quit()
-            
+
     def stop(self) -> None:
         self.running = False
