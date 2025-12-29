@@ -22,7 +22,7 @@ class ClockAlreadyRunningException(ClockException):
     pass
 
 
-@dataclass
+@dataclass(frozen=True)
 class TickData:
     delta_time: float
 
