@@ -17,6 +17,10 @@ class SystemNotFoundException(SchedulerException):
     pass
 
 
+class SystemDuplicateEntryException(SchedulerException):
+    pass
+
+
 class SystemConflictException(SchedulerException):
     pass
 
@@ -44,6 +48,10 @@ class SystemScheduler:
             await asyncio.gather(*awaitables)
 
     def add_system(self, system: System) -> None:
+        if system in self._systems:
+            raise SystemDuplicateEntryException(
+                f"System {system} is already in the scheduler."
+            )
         self._systems.add(system)
         self._logger.info(f"Added system {system} to the scheduler.")
         self._rebuild()
