@@ -8,4 +8,4 @@ from src.ecs import Component
 class Transform(Component):
     position: Vector2 = field(default_factory=lambda: Vector2(0, 0))
     rotation: float = 0.0
-    scale: Vector2 = field(default_factory=lambda: Vector2(1, 1))
+    size: Vector2 = field(default_factory=lambda: Vector2(1, 1))
