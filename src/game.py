@@ -3,12 +3,14 @@ import asyncio
 import os
 
 from src.scenes import SceneID, default
+
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 
 import pygame
 from logging import getLogger
 
 from src.utilities.context import GameContext
+
 pygame.init()
 
 from src.modules.dispatcher import Dispatcher
@@ -17,13 +19,12 @@ from src.modules.clock import Clock, TickContext
 from src.modules.stage import Stage
 
 
-
 class Game:
     def __init__(self):
         self.logger = getLogger(__name__)
         self.logger.info("Initializing process...")
         self.dispatcher = Dispatcher()
-        self.window = Window()
+        self.window = Window(self.dispatcher)
         self.clock = Clock()
 
         self.context = GameContext(
@@ -32,10 +33,13 @@ class Game:
             dispatcher=self.dispatcher,
         )
 
-        self.stage = Stage({
-            SceneID.DEFAULT: default.load,
-        })
-        
+        self.stage = Stage(
+            self.context,
+            {
+                SceneID.DEFAULT: default.load,
+            },
+        )
+
         self._attach_quit_handler()
         self.clock.on_tick.connect(self._process_game)
 

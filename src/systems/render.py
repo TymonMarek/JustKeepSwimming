@@ -7,7 +7,7 @@ from src.modules.clock import TickContext
 from src.utilities.context import GameContext
 
 
-BACKGROUND_COLOR: Color = Color(0, 0, 0)
+BACKGROUND_COLOR: Color = Color(255, 0, 0)
 
 
 class RenderSystem(System):
@@ -19,6 +19,6 @@ class RenderSystem(System):
         scene_context: SceneContext,
         engine_context: GameContext,
     ) -> None:
-        window = engine_context.window
-        window.surface.fill(BACKGROUND_COLOR)
-        window.refresh()
+        scene = scene_context.surface
+        scene.fill(BACKGROUND_COLOR)
+        

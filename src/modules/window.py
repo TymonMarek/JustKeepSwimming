@@ -1,27 +1,32 @@
+import logging
 from pygame import Vector2
 
 import pygame
 
+from src.modules.dispatcher import Dispatcher
+
 
 DEFAULT_WINDOW_TITLE: str = "Default Window"
 DEFAULT_WINDOW_SIZE: Vector2 = Vector2(800, 600)
-DEFAULT_WINDOW_FLAGS: int = pygame.SCALED | pygame.RESIZABLE
+DEFAULT_WINDOW_FLAGS: int = pygame.RESIZABLE
 DEFAULT_IS_VSYNC_ENABLED: bool = False
 
 
-import logging
-
-
 class Window:
-    def __init__(self):
-        self.logger = logging.getLogger(__name__ + ".Window")
+    def __init__(self, dispatcher: Dispatcher) -> None:
+        self.logger = logging.getLogger("Window")
         self._title: str = DEFAULT_WINDOW_TITLE
         self._size: Vector2 = DEFAULT_WINDOW_SIZE
         self._vsync_enabled: bool = DEFAULT_IS_VSYNC_ENABLED
         self._flags: int = DEFAULT_WINDOW_FLAGS
+        self.on_resize = dispatcher.get_signal_for(pygame.VIDEORESIZE)
         self.surface: pygame.Surface
         self._create_window()
-        
+        self.on_resize.connect(self._on_resize_event)
+
+    async def _on_resize_event(self, event: pygame.event.Event) -> None:
+        self._size = Vector2(event.w, event.h)
+
     def refresh(self):
         pygame.display.flip()
 

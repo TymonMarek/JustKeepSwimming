@@ -53,7 +53,7 @@ class SystemScheduler:
                 f"System {system} is already in the scheduler."
             )
         self.systems.add(system)
-        self._logger.info(f"Added system {system} to the scheduler.")
+        self._logger.debug(f"Added system {system} to the scheduler.")
         self._rebuild()
 
     def remove_system(self, system: System) -> None:

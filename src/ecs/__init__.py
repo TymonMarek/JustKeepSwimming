@@ -2,8 +2,11 @@ from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import overload
 
+from pygame import Surface, Vector2
+
 from src.modules.clock import TickContext
 from src.utilities.context import GameContext
+from src.utilities.maid import Maid
 
 
 @dataclass(frozen=True)
@@ -29,10 +32,15 @@ class System:
         engine_context: GameContext,
     ) -> None:
         raise NotImplementedError
+    
+    def __repr__(self) -> str:
+        return f"<System {self.__class__.__name__}>"
 
 
 @dataclass
 class SceneContext:
+    maid: Maid = field(default_factory=Maid)
+    surface: Surface = field(default_factory=lambda: Surface(Vector2(0, 0)))
     entities: dict[int, Entity] = field(default_factory=dict[int, Entity])
     components: dict[int, dict[type, Component]] = field(
         default_factory=dict[int, dict[type, Component]]
@@ -80,9 +88,48 @@ class SceneContext:
         fourth_component_type: type[C4],
     ) -> Iterable[tuple[Entity, tuple[C1, C2, C3, C4]]]: ...
 
-    def query(self, *classes: type[Component]) -> Iterable[tuple[Entity, tuple[Component, ...]]]: # type: ignore (See https://discuss.python.org/t/pre-pep-considerations-and-feedback-type-transformations-on-variadic-generics/50605)
+    def query(self, *classes: type[Component]) -> Iterable[tuple[Entity, tuple[Component, ...]]]:  # type: ignore (See https://discuss.python.org/t/pre-pep-considerations-and-feedback-type-transformations-on-variadic-generics/50605)
         for entity_id, components in self.components.items():
             if all(component_type in components.keys() for component_type in classes):
                 entity = self.entities[entity_id]
-                components = tuple(components[component_type] for component_type in classes)
+                components = tuple(
+                    components[component_type] for component_type in classes
+                )
                 yield (entity, components)
+
+    @overload
+    def query_one[C1](
+        self, component_type: type[C1]
+    ) -> tuple[Entity, tuple[C1]] | None: ...
+
+    @overload
+    def query_one[C1, C2](
+        self, first_component_type: type[C1], second_component_type: type[C2]
+    ) -> tuple[Entity, tuple[C1, C2]] | None: ...
+
+    @overload
+    def query_one[C1, C2, C3](
+        self,
+        first_component_type: type[C1],
+        second_component_type: type[C2],
+        third_component_type: type[C3],
+    ) -> tuple[Entity, tuple[C1, C2, C3]] | None: ...
+
+    @overload
+    def query_one[C1, C2, C3, C4](
+        self,
+        first_component_type: type[C1],
+        second_component_type: type[C2],
+        third_component_type: type[C3],
+        fourth_component_type: type[C4],
+    ) -> tuple[Entity, tuple[C1, C2, C3, C4]] | None: ...
+
+    def query_one(self, *classes: type[Component]) -> tuple[Entity, tuple[Component, ...]] | None:  # type: ignore
+        for entity_id, components in self.components.items():
+            if all(component_type in components.keys() for component_type in classes):
+                entity = self.entities[entity_id]
+                components_tuple = tuple(
+                    components[component_type] for component_type in classes
+                )
+                return (entity, components_tuple)
+        return None

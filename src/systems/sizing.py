@@ -1,11 +1,39 @@
-from components.sizing import ScreenSizeConstraint
+from pygame import Vector2
+from src.components.sizing import AspectRatioConstraint, ScreenSizeConstraint
 from src.components.physics import Transform
 from src.ecs import SceneContext, System
 from src.modules.clock import TickContext
 from src.utilities.context import GameContext
 
-class SizeConstraint(System):
-    reads = frozenset({ScreenSizeConstraint, Transform})
+
+class AspectRatioConstraintSystem(System):
+    reads = frozenset({Transform, AspectRatioConstraint})
+    writes = frozenset({Transform})
+
+    async def update(
+        self,
+        tick_context: TickContext,
+        scene_context: SceneContext,
+        engine_context: GameContext,
+    ) -> None:
+        for _, (transform, aspect_ratio_constraint) in scene_context.query(
+            Transform, AspectRatioConstraint
+        ):
+            width, height = transform.size
+            target_aspect_ratio = aspect_ratio_constraint.aspect_ratio
+
+            current_aspect_ratio = width / height if height != 0 else 0
+
+            if current_aspect_ratio > target_aspect_ratio:
+                width = height * target_aspect_ratio
+            else:
+                height = width / target_aspect_ratio
+
+            transform.size = Vector2(width, height)
+
+
+class ScreenSizeConstraintSystem(System):
+    reads = frozenset({Transform, ScreenSizeConstraint})
     writes = frozenset({Transform})
 
     async def update(
@@ -17,4 +45,3 @@ class SizeConstraint(System):
         window = engine_context.window
         for _, (transform, _) in scene_context.query(Transform, ScreenSizeConstraint):
             transform.size = window.size
-        

@@ -49,6 +49,7 @@ class StageContext:
 class Stage:
     def __init__(
         self,
+        engine_context: GameContext,
         scenes: dict[SceneID, SceneFactory],
         loading_strategy: SceneLoadingStrategy = SceneLoadingStrategy.EAGER,
     ) -> None:
@@ -61,6 +62,7 @@ class Stage:
         self.handles: dict[SceneID, SceneHandle] = {}
 
         self.on_tick = Signal[TickContext, GameContext]()
+        self.engine_context = engine_context
         self.context = StageContext()
 
         self.on_tick.connect(self._process_scene)
@@ -89,7 +91,7 @@ class Stage:
             handle = SceneHandle(scene_id, factory, self.loading_strategy)
             self.handles[scene_id] = handle
             return handle
-        
+
     async def switch_scene(self, scene_id: SceneID) -> None:
         await self.context.on_request_switch_scene.emit(scene_id)
 
@@ -100,8 +102,7 @@ class Stage:
 
         handle = self._get_handle(scene_id)
         self.scene = await handle.get_scene()
-
-        await self.scene.on_enter.emit()
+        await self.scene.on_enter.emit(self.engine_context)
 
     async def _process_scene(
         self,

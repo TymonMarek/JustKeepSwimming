@@ -1,14 +1,17 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from pygame import Color, Font
+from pygame import Color, Font, Surface
 
 from src.ecs import Component
+
 
 @dataclass
 class MainCamera(Component): ...
 
+
 @dataclass
-class Camera(Component): ...
+class Camera(Component):
+    surface: Surface = field(default_factory=lambda: Surface((0, 0)))
 
 
 @dataclass
