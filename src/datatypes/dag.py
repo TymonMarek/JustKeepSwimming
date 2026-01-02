@@ -35,58 +35,99 @@ class DirectedAcyclicGraphNode(Generic[T]):
 
 class DirectedAcyclicGraph(Generic[T]):
     def __init__(self) -> None:
-        self._nodes: Set[DirectedAcyclicGraphNode[T]] = set()
+        self.nodes: Set[DirectedAcyclicGraphNode[T]] = set()
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(nodes={len(self._nodes)})"
+        return f"{self.__class__.__name__}(nodes={len(self.nodes)})"
 
     def insert_node(
         self, node: DirectedAcyclicGraphNode[T]
     ) -> DirectedAcyclicGraphNode[T]:
-        if node in self._nodes:
+        if node in self.nodes:
             raise NodeAlreadyExistsError(f"{node} already exists in the graph.")
-        self._nodes.add(node)
+        self.nodes.add(node)
         return node
 
     def _require_node(self, node: DirectedAcyclicGraphNode[T]) -> None:
-        if node not in self._nodes:
+        if node not in self.nodes:
             raise NodeNotFoundError(f"{node} is not part of this graph.")
+    
+    def _find_path(
+        self,
+        start: DirectedAcyclicGraphNode[T],
+        target: DirectedAcyclicGraphNode[T],
+    ) -> List[DirectedAcyclicGraphNode[T]] | None:
+        stack: list[tuple[DirectedAcyclicGraphNode[T], list[DirectedAcyclicGraphNode[T]]]] = [
+            (start, [start])
+        ]
+        visited: set[DirectedAcyclicGraphNode[T]] = set()
 
-    def set_dependency(
-        self, node: DirectedAcyclicGraphNode[T], dependency: DirectedAcyclicGraphNode[T]
-    ) -> None:
-        self._require_node(node)
-        self._require_node(dependency)
+        while stack:
+            current, path = stack.pop()
 
-        if node is dependency:
-            raise CyclicalDependencyError(f"{node} cannot depend on itself.")
-
-        visited: Set[DirectedAcyclicGraphNode[T]] = set()
-        pending: Set[DirectedAcyclicGraphNode[T]] = {dependency}
-
-        while pending:
-            current = pending.pop()
-
-            if current is node:
-                raise CyclicalDependencyError(
-                    f"Cannot add dependency: {node} depends on {dependency}, "
-                    f"but {dependency} already depends on {node}."
-                )
+            if current is target:
+                return path
 
             if current in visited:
                 continue
 
             visited.add(current)
-            pending.update(current.depends_on)
+
+            for dep in current.depends_on:
+                stack.append((dep, path + [dep]))
+
+        return None
+    
+    def _format_cycle(
+        self, nodes: list[DirectedAcyclicGraphNode[T]]
+    ) -> str:
+        names = [repr(node.value) for node in nodes]
+
+        arrow = " -> "
+        here = "^"
+        cycle_line = arrow.join(names)
+
+        underline: List[str] = []
+        for index, name in enumerate(names):
+            if index == 0 or index == len(names) - 1:
+                underline.extend(here * len(name))
+            else:
+                underline.extend(" " * len(name))
+            if index != len(names) - 1:
+                underline.extend(" " * len(arrow))
+        underline_str = "".join(underline)
+
+        return cycle_line + "\n" + underline_str
+
+    def set_dependency(
+        self,
+        node: DirectedAcyclicGraphNode[T],
+        dependency: DirectedAcyclicGraphNode[T],
+    ) -> None:
+        self._require_node(node)
+        self._require_node(dependency)
+
+        if node is dependency:
+            raise CyclicalDependencyError(
+                f"Cannot add dependency: {node} cannot depend on itself."
+            )
+
+        path = self._find_path(dependency, node)
+        if path is not None:
+            path_str = self._format_cycle(path + [dependency])
+            raise CyclicalDependencyError(
+                "Cannot add dependency because it would create a cycle:\n\n"
+                f"{path_str}"
+            )
 
         node.depends_on.add(dependency)
 
     def topological_sort(self) -> List[T]:
         in_degree: Dict[DirectedAcyclicGraphNode[T], int] = {
-            node: 0 for node in self._nodes
+            node: 0 for node in self.nodes
         }
 
-        for node in self._nodes:
+        for node in self.nodes:
             for _ in node.depends_on:
                 in_degree[node] += 1
 
@@ -100,23 +141,23 @@ class DirectedAcyclicGraph(Generic[T]):
             current = queue.popleft()
             result.append(current.value)
 
-            for dependent in self._nodes:
+            for dependent in self.nodes:
                 if current in dependent.depends_on:
                     in_degree[dependent] -= 1
                     if in_degree[dependent] == 0:
                         queue.append(dependent)
 
-        if len(result) != len(self._nodes):
+        if len(result) != len(self.nodes):
             raise CyclicalDependencyError("Graph contains a cycle.")
 
         return result
 
     def parallel_sort(self) -> List[Set[T]]:
         in_degree: Dict[DirectedAcyclicGraphNode[T], int] = {
-            node: 0 for node in self._nodes
+            node: 0 for node in self.nodes
         }
 
-        for node in self._nodes:
+        for node in self.nodes:
             for _ in node.depends_on:
                 in_degree[node] += 1
 
@@ -133,7 +174,7 @@ class DirectedAcyclicGraph(Generic[T]):
             for node in zero_in_degree:
                 current_layer.add(node.value)
 
-                for dependent in self._nodes:
+                for dependent in self.nodes:
                     if node in dependent.depends_on:
                         in_degree[dependent] -= 1
                         if in_degree[dependent] == 0:
@@ -143,7 +184,7 @@ class DirectedAcyclicGraph(Generic[T]):
             zero_in_degree = next_zero_in_degree
 
         total = sum(len(layer) for layer in layers)
-        if total != len(self._nodes):
+        if total != len(self.nodes):
             raise CyclicalDependencyError("Graph contains a cycle.")
 
         return layers
