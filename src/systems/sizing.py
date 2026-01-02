@@ -1,9 +1,23 @@
 from pygame import Vector2
-from src.components.sizing import AspectRatioConstraint, ScreenSizeConstraint
+
+from src.components.sizing import AspectRatioConstraint, SceneSizeConstraint, ScreenSizeConstraint
 from src.components.physics import Transform
 from src.ecs import SceneContext, System
 from src.modules.clock import TickContext
 from src.utilities.context import GameContext
+
+class SceneSizeConstraintSystem(System):
+    writes = frozenset({Transform})
+    
+    async def update(
+        self,
+        tick_context: TickContext,
+        scene_context: SceneContext,
+        engine_context: GameContext,
+    ) -> None:
+        surface = scene_context.surface
+        for _, (transform, _) in scene_context.query(Transform, SceneSizeConstraint):
+            transform.size = Vector2(surface.get_size())
 
 
 class AspectRatioConstraintSystem(System):

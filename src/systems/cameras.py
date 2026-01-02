@@ -12,7 +12,7 @@ from src.utilities.context import GameContext
 
 class CameraSystem(System):
     reads = frozenset({Camera, Transform})
-    writes = frozenset({Camera, Transform})
+    writes = frozenset({Camera})
 
     async def update(
         self,

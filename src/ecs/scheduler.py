@@ -2,11 +2,10 @@ import asyncio
 from logging import getLogger
 from typing import Awaitable, Set, Dict, Type
 
-
 from src.datatypes.dag import DirectedAcyclicGraph, DirectedAcyclicGraphNode
 from src.utilities.context import GameContext
 from src.modules.clock import TickContext
-from src.ecs import SceneContext, System
+from src.ecs import Component, SceneContext, System
 
 
 class SchedulerException(Exception):
@@ -27,11 +26,14 @@ class SystemConflictException(SchedulerException):
 
 class SystemScheduler:
     def __init__(self) -> None:
-        self._logger = getLogger("Scheduler")
+        self.logger = getLogger("Scheduler")
         self.systems: Set[System] = set()
         self._nodes: Dict[System, DirectedAcyclicGraphNode[System]] = {}
         self._graph: DirectedAcyclicGraph[System] = DirectedAcyclicGraph()
         self._execution_order: list[Set[System]] = []
+        
+    def _fmt_components(self, components: frozenset[Type[Component]]) -> str:
+        return "{" + ", ".join(comp.__name__ for comp in components) + "}"
 
     async def process_tick(
         self,
@@ -53,7 +55,7 @@ class SystemScheduler:
                 f"System {system} is already in the scheduler."
             )
         self.systems.add(system)
-        self._logger.debug(f"Added system {system} to the scheduler.")
+        self.logger.debug(f"Added system {system} to the scheduler.")
         self._rebuild()
 
     def remove_system(self, system: System) -> None:
@@ -67,7 +69,10 @@ class SystemScheduler:
     def execution_order(self) -> list[Set[System]]:
         return self._execution_order
 
+
     def _rebuild(self) -> None:
+        self.logger.debug("Rebuilding system scheduler DAG")
+
         self._graph = DirectedAcyclicGraph()
         self._nodes = {}
 
@@ -75,6 +80,11 @@ class SystemScheduler:
             node = DirectedAcyclicGraphNode(system)
             self._nodes[system] = node
             self._graph.insert_node(node)
+            self.logger.debug(
+                f"Inserted node for system {system} "
+                f"(reads={self._fmt_components(system.reads)}, "
+                f"writes={self._fmt_components(system.writes)})"
+            )
 
         systems = list(self.systems)
 
@@ -89,25 +99,69 @@ class SystemScheduler:
                 node_a = self._nodes[a]
                 node_b = self._nodes[b]
 
-                if a.writes & b.reads:
+                write_read = a.writes & b.reads
+                if write_read:
+                    self.logger.debug(
+                        f"Ordering decision: {a} runs BEFORE {b} "
+                        f"because {b} reads {self._fmt_components(write_read)} "
+                        f"that {a} writes"
+                    )
                     self._graph.set_dependency(node_b, node_a)
 
-                if a.reads & b.writes:
+                read_write = a.reads & b.writes
+                if read_write:
+                    self.logger.debug(
+                        f"Ordering decision: {b} runs BEFORE {a} "
+                        f"because {a} reads {self._fmt_components(read_write)} "
+                        f"that {b} writes"
+                    )
                     self._graph.set_dependency(node_a, node_b)
 
-                if a.writes & b.writes:
+                write_write = a.writes & b.writes
+                if write_write:
+                    self.logger.debug(
+                        f"Write-write conflict detected between {a} and {b} "
+                        f"on {self._fmt_components(write_write)}"
+                    )
+
                     if type(a) in b.after:
-                        self._graph.set_dependency(node_a, node_b)
-                    elif type(b) in a.after:
-                        self._graph.set_dependency(node_b, node_a)
-                    elif type(a) in b.before:
-                        self._graph.set_dependency(node_b, node_a)
-                    elif type(b) in a.before:
-                        self._graph.set_dependency(node_a, node_b)
-                    else:
-                        self._logger.warning(
-                            f"There is a write-write conflict between systems {a} and {b} without explicit ordering, which may lead to non-deterministic behavior. The scheduler will assume {a} runs before {b}, but this assumption may not hold in all cases."
+                        self.logger.debug(
+                            f"Resolved by explicit ordering: {b} declares after {type(a).__name__} "
+                            f"→ {a} runs BEFORE {b}"
                         )
+                        self._graph.set_dependency(node_a, node_b)
+
+                    elif type(b) in a.after:
+                        self.logger.debug(
+                            f"Resolved by explicit ordering: {a} declares after {type(b).__name__} "
+                            f"→ {b} runs BEFORE {a}"
+                        )
+                        self._graph.set_dependency(node_b, node_a)
+
+                    elif type(a) in b.before:
+                        self.logger.debug(
+                            f"Resolved by explicit ordering: {b} declares before {type(a).__name__} "
+                            f"→ {b} runs BEFORE {a}"
+                        )
+                        self._graph.set_dependency(node_b, node_a)
+
+                    elif type(b) in a.before:
+                        self.logger.debug(
+                            f"Resolved by explicit ordering: {a} declares before {type(b).__name__} "
+                            f"→ {a} runs BEFORE {b}"
+                        )
+                        self._graph.set_dependency(node_a, node_b)
+
+                    else:
+                        self.logger.warning(
+                            f"Unresolved write-write conflict between {a} and {b} "
+                            f"on {self._fmt_components(write_write)}. "
+                            f"Assuming {a} runs BEFORE {b}. This may be non-deterministic."
+                        )
+
+                    self.logger.debug(
+                        f"Final decision: {a} runs BEFORE {b} due to write-write conflict"
+                    )
                     self._graph.set_dependency(node_b, node_a)
 
         for system in systems:
@@ -115,13 +169,29 @@ class SystemScheduler:
 
             for before_type in system.before:
                 target = self._find_system(before_type)
+                self.logger.debug(
+                    f"Explicit ordering: {system} runs BEFORE {target} "
+                    f"due to 'before={before_type.__name__}'"
+                )
                 self._graph.set_dependency(node, self._nodes[target])
 
             for after_type in system.after:
                 target = self._find_system(after_type)
+                self.logger.debug(
+                    f"Explicit ordering: {system} runs AFTER {target} "
+                    f"due to 'after={after_type.__name__}'"
+                )
                 self._graph.set_dependency(self._nodes[target], node)
 
         self._execution_order = self._graph.parallel_sort()
+
+        self.logger.debug(
+            "Final execution layers: "
+            + " | ".join(
+                "{" + ", ".join(type(s).__name__ for s in layer) + "}"
+                for layer in self._execution_order
+            )
+        )
 
     def _find_system(self, system_type: Type[System]) -> System:
         for system in self.systems:

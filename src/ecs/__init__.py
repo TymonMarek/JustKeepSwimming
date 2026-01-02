@@ -1,5 +1,6 @@
 from collections.abc import Iterable
 from dataclasses import dataclass, field
+import logging
 from typing import overload
 
 from pygame import Surface, Vector2
@@ -20,6 +21,9 @@ class Component:
 
 
 class System:
+    def __init__(self) -> None:
+        self.logger = logging.getLogger(f"System.{self.__class__.__name__}")
+    
     writes: frozenset[type[Component]] = frozenset()
     reads: frozenset[type[Component]] = frozenset()
     before: frozenset[type[System]] = frozenset()
