@@ -28,7 +28,7 @@ class SystemConflictException(SchedulerException):
 class SystemScheduler:
     def __init__(self) -> None:
         self._logger = getLogger("Scheduler")
-        self._systems: Set[System] = set()
+        self.systems: Set[System] = set()
         self._nodes: Dict[System, DirectedAcyclicGraphNode[System]] = {}
         self._graph: DirectedAcyclicGraph[System] = DirectedAcyclicGraph()
         self._execution_order: list[Set[System]] = []
@@ -48,20 +48,20 @@ class SystemScheduler:
             await asyncio.gather(*awaitables)
 
     def add_system(self, system: System) -> None:
-        if system in self._systems:
+        if system in self.systems:
             raise SystemDuplicateEntryException(
                 f"System {system} is already in the scheduler."
             )
-        self._systems.add(system)
+        self.systems.add(system)
         self._logger.info(f"Added system {system} to the scheduler.")
         self._rebuild()
 
     def remove_system(self, system: System) -> None:
-        if system not in self._systems:
+        if system not in self.systems:
             raise SystemNotFoundException(
                 f"System {system} not found in the scheduler."
             )
-        self._systems.remove(system)
+        self.systems.remove(system)
         self._rebuild()
 
     def execution_order(self) -> list[Set[System]]:
@@ -71,12 +71,12 @@ class SystemScheduler:
         self._graph = DirectedAcyclicGraph()
         self._nodes = {}
 
-        for system in self._systems:
+        for system in self.systems:
             node = DirectedAcyclicGraphNode(system)
             self._nodes[system] = node
             self._graph.insert_node(node)
 
-        systems = list(self._systems)
+        systems = list(self.systems)
 
         for i in range(len(systems)):
             for j in range(len(systems)):
@@ -124,7 +124,7 @@ class SystemScheduler:
         self._execution_order = self._graph.parallel_sort()
 
     def _find_system(self, system_type: Type[System]) -> System:
-        for system in self._systems:
+        for system in self.systems:
             if isinstance(system, system_type):
                 return system
         raise SystemNotFoundException(

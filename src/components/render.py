@@ -4,6 +4,8 @@ from pygame import Color, Font
 
 from src.ecs import Component
 
+@dataclass
+class MainCamera(Component): ...
 
 @dataclass
 class Camera(Component): ...
