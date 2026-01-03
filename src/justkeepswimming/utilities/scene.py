@@ -9,6 +9,16 @@ from justkeepswimming.utilities.context import GameContext
 from justkeepswimming.ecs import SceneContext
 from justkeepswimming.utilities.signal import Signal
 
+# Import for DAG visualizer
+try:
+    from justkeepswimming.utilities.dag_visualizer import (
+        extract_graph_data_from_scheduler,
+    )
+
+    DAG_VISUALIZER_AVAILABLE = True
+except ImportError:
+    DAG_VISUALIZER_AVAILABLE = False
+
 
 class Scene:
     def __init__(self, id: SceneID, dag_visualizer=None) -> None:
@@ -38,12 +48,8 @@ class Scene:
         await self.scheduler.process_tick(tick_context, self.context, engine_context)
 
         # Update DAG visualizer if available
-        if self.dag_visualizer:
+        if self.dag_visualizer and DAG_VISUALIZER_AVAILABLE:
             try:
-                from justkeepswimming.utilities.dag_visualizer import (
-                    extract_graph_data_from_scheduler,
-                )
-
                 graph_data = extract_graph_data_from_scheduler(self.scheduler)
                 self.dag_visualizer.update_graph(graph_data)
             except Exception as e:

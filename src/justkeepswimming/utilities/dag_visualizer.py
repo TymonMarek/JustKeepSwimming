@@ -6,6 +6,7 @@ Runs in a separate thread to avoid blocking the main game thread.
 import threading
 import queue
 import logging
+import math
 from typing import Dict, Set, List, Tuple, Optional
 from dataclasses import dataclass
 
@@ -15,6 +16,10 @@ try:
     PYGAME_AVAILABLE = True
 except ImportError:
     PYGAME_AVAILABLE = False
+
+
+# Constants
+MAX_DISPLAYED_COMPONENTS = 5
 
 
 @dataclass
@@ -92,7 +97,7 @@ class DAGVisualizer:
 
         try:
             # Clear old data and add new
-            while not self.data_queue.empty():
+            while True:
                 try:
                     self.data_queue.get_nowait()
                 except queue.Empty:
@@ -263,8 +268,6 @@ class DAGVisualizer:
 
     def _draw_arrow_head(self, screen, start_pos, end_pos, color) -> None:
         """Draw an arrow head at the end of an edge."""
-        import math
-
         # Calculate angle
         dx = end_pos[0] - start_pos[0]
         dy = end_pos[1] - start_pos[1]
@@ -306,7 +309,7 @@ class DAGVisualizer:
         y_offset += 20
 
         if node_data.reads:
-            for component in node_data.reads[:5]:  # Limit to 5
+            for component in node_data.reads[:MAX_DISPLAYED_COMPONENTS]:
                 text = font.render(f"  - {component}", True, text_color)
                 screen.blit(text, (detail_x, y_offset))
                 y_offset += 18
@@ -321,7 +324,7 @@ class DAGVisualizer:
         y_offset += 20
 
         if node_data.writes:
-            for component in node_data.writes[:5]:  # Limit to 5
+            for component in node_data.writes[:MAX_DISPLAYED_COMPONENTS]:
                 text = font.render(f"  - {component}", True, text_color)
                 screen.blit(text, (detail_x, y_offset))
                 y_offset += 18
