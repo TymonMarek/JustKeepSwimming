@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 
 from pygame import Vector2
-from src.ecs import Component
+from justkeepswimming.ecs import Component
 
 
 @dataclass

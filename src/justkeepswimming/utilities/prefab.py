@@ -1,5 +1,5 @@
-from src.ecs import Component, Entity, System
-from src.utilities.scene import Scene
+from justkeepswimming.ecs import Component, Entity, System
+from justkeepswimming.utilities.scene import Scene
 
 
 class Prefab:

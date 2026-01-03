@@ -2,7 +2,7 @@ import logging
 from pygame import Event as PygameEvent
 import pygame
 
-from src.utilities.signal import Signal
+from justkeepswimming.utilities.signal import Signal
 
 type EventType = int
 

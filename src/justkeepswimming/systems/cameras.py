@@ -1,13 +1,13 @@
 from pygame import Color, Rect, Vector2
 import pygame
 
-from src.ecs import SceneContext
-from src.modules.clock import TickContext
-from src.components.physics import Transform
-from src.components.render import Camera, MainCamera
+from justkeepswimming.ecs import SceneContext
+from justkeepswimming.modules.clock import TickContext
+from justkeepswimming.components.physics import Transform
+from justkeepswimming.components.render import Camera, MainCamera
 
-from src.ecs import System
-from src.utilities.context import GameContext
+from justkeepswimming.ecs import System
+from justkeepswimming.utilities.context import GameContext
 
 
 class CameraSystem(System):

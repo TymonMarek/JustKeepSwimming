@@ -2,12 +2,12 @@ from logging import getLogger
 
 from pygame import Event, Surface, Vector2
 
-from src.scenes import SceneID
-from src.modules.clock import TickContext
-from src.ecs.scheduler import SystemScheduler
-from src.utilities.context import GameContext
-from src.ecs import SceneContext
-from src.utilities.signal import Signal
+from justkeepswimming.scenes import SceneID
+from justkeepswimming.modules.clock import TickContext
+from justkeepswimming.ecs.scheduler import SystemScheduler
+from justkeepswimming.utilities.context import GameContext
+from justkeepswimming.ecs import SceneContext
+from justkeepswimming.utilities.signal import Signal
 
 
 class Scene:

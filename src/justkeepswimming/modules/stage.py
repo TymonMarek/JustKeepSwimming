@@ -4,10 +4,10 @@ from dataclasses import dataclass, field
 from logging import getLogger
 from typing import Callable, Optional
 
-from src.modules.clock import TickContext
-from src.utilities.context import GameContext
-from src.utilities.scene import Scene, SceneID
-from src.utilities.signal import Signal
+from justkeepswimming.modules.clock import TickContext
+from justkeepswimming.utilities.context import GameContext
+from justkeepswimming.utilities.scene import Scene, SceneID
+from justkeepswimming.utilities.signal import Signal
 
 
 class SceneLoadingStrategy(enum.Enum):

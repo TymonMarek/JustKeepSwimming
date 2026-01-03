@@ -3,7 +3,7 @@ from pygame import Vector2
 
 import pygame
 
-from src.modules.dispatcher import Dispatcher
+from justkeepswimming.modules.dispatcher import Dispatcher
 
 
 DEFAULT_WINDOW_TITLE: str = "Default Window"

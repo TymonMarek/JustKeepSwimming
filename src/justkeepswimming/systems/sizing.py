@@ -1,10 +1,10 @@
 from pygame import Vector2
 
-from src.components.sizing import AspectRatioConstraint, SceneSizeConstraint, ScreenSizeConstraint
-from src.components.physics import Transform
-from src.ecs import SceneContext, System
-from src.modules.clock import TickContext
-from src.utilities.context import GameContext
+from justkeepswimming.components.sizing import AspectRatioConstraint, SceneSizeConstraint, ScreenSizeConstraint
+from justkeepswimming.components.physics import Transform
+from justkeepswimming.ecs import SceneContext, System
+from justkeepswimming.modules.clock import TickContext
+from justkeepswimming.utilities.context import GameContext
 
 class SceneSizeConstraintSystem(System):
     writes = frozenset({Transform})

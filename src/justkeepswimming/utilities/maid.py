@@ -1,6 +1,6 @@
 from typing import Any
 
-from src.utilities.signal import Connection
+from justkeepswimming.utilities.signal import Connection
 
 
 class Maid:

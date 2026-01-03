@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 
 from pygame import Color, Font, Surface
 
-from src.ecs import Component
+from justkeepswimming.ecs import Component
 
 
 @dataclass

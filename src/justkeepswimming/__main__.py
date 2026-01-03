@@ -3,8 +3,8 @@ import logging
 import argparse
 from rich.logging import RichHandler
 
-from src.scenes import SceneID
-from src.game import Game
+from justkeepswimming.scenes import SceneID
+from justkeepswimming.modules.game import Game
 
 
 def setup_logging(verbosity: int):
@@ -18,14 +18,14 @@ def setup_logging(verbosity: int):
     )
 
 
-async def main():
+async def game_loop():
     game = Game()
     await game.start()
     await game.stage.switch_scene(SceneID.DEFAULT)
     await game.clock.on_stop.wait()
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description="Just Keep Swimming")
     parser.add_argument(
         "-v",
@@ -36,4 +36,8 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     setup_logging(args.verbosity)
-    asyncio.run(main())
+    asyncio.run(game_loop())
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,27 @@
+[project]
+name = "justkeepswimming"
+version = "0.1.0"
+description = "A small game about a fish in the deep sea."
+
+readme = "README.md"
+license = { file = "LICENSE" }
+
+requires-python = ">=3.14"
+dependencies = [
+    "asyncio>=4.0.0",
+    "pygame-ce>=2.5.6",
+    "rich>=14.2.0",
+]
+
+[dependency-groups]
+dev = [
+    "black>=25.12.0",
+]
+
+[project.scripts]
+client = "justkeepswimming.__main__:main"
+
+[build-system]
+requires = ["setuptools>=65.5.1", "wheel"]
+build-backend = "setuptools.build_meta"
+

@@ -1,10 +1,10 @@
 from pygame import Color
 
-from src.components.physics import Transform
-from src.components.render import Camera, TextRenderer
-from src.ecs import SceneContext, System
-from src.modules.clock import TickContext
-from src.utilities.context import GameContext
+from justkeepswimming.components.physics import Transform
+from justkeepswimming.components.render import Camera, TextRenderer
+from justkeepswimming.ecs import SceneContext, System
+from justkeepswimming.modules.clock import TickContext
+from justkeepswimming.utilities.context import GameContext
 
 
 BACKGROUND_COLOR: Color = Color(255, 0, 0)

@@ -5,9 +5,9 @@ from typing import overload
 
 from pygame import Surface, Vector2
 
-from src.modules.clock import TickContext
-from src.utilities.context import GameContext
-from src.utilities.maid import Maid
+from justkeepswimming.modules.clock import TickContext
+from justkeepswimming.utilities.context import GameContext
+from justkeepswimming.utilities.maid import Maid
 
 
 @dataclass(frozen=True)

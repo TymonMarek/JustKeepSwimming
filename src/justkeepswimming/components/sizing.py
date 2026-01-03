@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from src.ecs import Component
+from justkeepswimming.ecs import Component
 
 @dataclass
 class SceneSizeConstraint(Component): ...
