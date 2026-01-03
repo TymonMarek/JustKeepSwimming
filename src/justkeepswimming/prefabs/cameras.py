@@ -9,15 +9,24 @@ from justkeepswimming.systems.cameras import CameraSystem
 from justkeepswimming.utilities.prefab import Prefab
 from justkeepswimming.systems.sizing import SceneSizeConstraintSystem
 
-class MainCameraPrefab(Prefab):
+
+class CameraPrefab(Prefab):
     components: list[Component] = [
         Camera(),
         Transform(),
-        MainCamera(),
-        SceneSizeConstraint(),
     ]
     systems: list[type[System]] = [
         RenderSystem,
         CameraSystem,
+    ]
+
+
+class MainCameraPrefab(Prefab):
+    extends = CameraPrefab()
+    components: list[Component] = [
+        MainCamera(),
+        SceneSizeConstraint(),
+    ]
+    systems: list[type[System]] = [
         SceneSizeConstraintSystem,
     ]

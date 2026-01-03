@@ -3,11 +3,18 @@ from justkeepswimming.utilities.scene import Scene
 
 
 class Prefab:
+    extends: Prefab | None = None
     components: list[Component]
     systems: list[type[System]]
-    
+
     def construct(self, scene: Scene) -> Entity:
-        entity = scene.context.create_entity()
+        entity: Entity
+        
+        if self.extends is not None:
+            entity = self.extends.construct(scene)
+        else:
+            entity = scene.context.create_entity()
+        
         for component in self.components:
             scene.context.add_component(entity, component)
         for system_class in self.systems:
