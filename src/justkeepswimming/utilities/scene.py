@@ -9,12 +9,14 @@ from justkeepswimming.systems.clock import TickContext
 from justkeepswimming.utilities.context import EngineContext
 from justkeepswimming.utilities.signal import Signal
 
+INTERNAL_RENDER_WINDOW_SIZE = Vector2(1920, 1080)
+
 
 class Scene:
     def __init__(self, id: SceneID) -> None:
         self.id: SceneID = id
         self.logger = getLogger(__name__)
-        self.context = SceneContext(surface=Surface(Vector2(960, 540)))
+        self.context = SceneContext(surface=Surface(INTERNAL_RENDER_WINDOW_SIZE))
         self.scheduler = ProcessorScheduler()
         self.on_load = Signal()
         self.on_enter = Signal[EngineContext]()
