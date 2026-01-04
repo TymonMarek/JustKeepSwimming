@@ -6,9 +6,9 @@ from justkeepswimming.datatypes.dag import (
     DirectedAcyclicGraph,
     DirectedAcyclicGraphNode,
 )
-from justkeepswimming.ecs import Component, SceneContext, System
-from justkeepswimming.modules.clock import TickContext
-from justkeepswimming.utilities.context import GameContext
+from justkeepswimming.ecs import Component, Processor, SceneContext
+from justkeepswimming.systems.clock import TickContext
+from justkeepswimming.utilities.context import EngineContext
 
 
 class SchedulerException(Exception):
@@ -27,13 +27,13 @@ class SystemConflictException(SchedulerException):
     pass
 
 
-class SystemScheduler:
+class ProcessorScheduler:
     def __init__(self) -> None:
         self.logger = getLogger("Scheduler")
-        self.systems: Set[System] = set()
-        self._nodes: Dict[System, DirectedAcyclicGraphNode[System]] = {}
-        self._graph: DirectedAcyclicGraph[System] = DirectedAcyclicGraph()
-        self._execution_order: list[Set[System]] = []
+        self.processors: Set[Processor] = set()
+        self._nodes: Dict[Processor, DirectedAcyclicGraphNode[Processor]] = {}
+        self._graph: DirectedAcyclicGraph[Processor] = DirectedAcyclicGraph()
+        self._execution_order: list[Set[Processor]] = []
 
     def _fmt_components(self, components: frozenset[Type[Component]]) -> str:
         return "{" + ", ".join(comp.__name__ for comp in components) + "}"
@@ -42,7 +42,7 @@ class SystemScheduler:
         self,
         tick_context: TickContext,
         scene_context: SceneContext,
-        engine_context: GameContext,
+        engine_context: EngineContext,
     ) -> None:
         for system_group in self._execution_order:
             await asyncio.gather(
@@ -52,27 +52,27 @@ class SystemScheduler:
                 )
             )
 
-    def add_system(self, system: System) -> None:
-        if system in self.systems:
+    def add_system(self, system: Processor) -> None:
+        if system in self.processors:
             raise SystemDuplicateEntryException(
                 f"System {system} is already in the scheduler."
             )
-        self.systems.add(system)
+        self.processors.add(system)
         self.logger.debug(f"Added system {system} to the scheduler.")
         self._rebuild()
 
-    def remove_system(self, system: System) -> None:
-        if system not in self.systems:
+    def remove_system(self, system: Processor) -> None:
+        if system not in self.processors:
             raise SystemNotFoundException(
                 f"System {system} not found in the scheduler."
             )
-        self.systems.remove(system)
+        self.processors.remove(system)
         self._rebuild()
 
-    def execution_order(self) -> list[Set[System]]:
+    def execution_order(self) -> list[Set[Processor]]:
         return self._execution_order
 
-    def _explicit_order(self, a: System, b: System) -> int | None:
+    def _explicit_order(self, a: Processor, b: Processor) -> int | None:
         if type(b) in a.before or type(a) in b.after:
             return -1
         if type(b) in a.after or type(a) in b.before:
@@ -85,7 +85,7 @@ class SystemScheduler:
         self._graph = DirectedAcyclicGraph()
         self._nodes = {}
 
-        for system in self.systems:
+        for system in self.processors:
             node = DirectedAcyclicGraphNode(system)
             self._nodes[system] = node
             self._graph.insert_node(node)
@@ -95,7 +95,7 @@ class SystemScheduler:
                 f"writes={self._fmt_components(system.writes)})"
             )
 
-        systems = list(self.systems)
+        systems = list(self.processors)
 
         for i in range(len(systems)):
             for j in range(len(systems)):
@@ -151,8 +151,8 @@ class SystemScheduler:
             )
         )
 
-    def _find_system(self, system_type: Type[System]) -> System:
-        for system in self.systems:
+    def _find_system(self, system_type: Type[Processor]) -> Processor:
+        for system in self.processors:
             if isinstance(system, system_type):
                 return system
         raise SystemNotFoundException(

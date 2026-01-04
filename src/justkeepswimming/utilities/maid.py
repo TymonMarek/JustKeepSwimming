@@ -14,11 +14,7 @@ class Maid:
         for connection in self._connections:
             try:
                 connection.disconnect()
-            except (
-                Exception
-            ):  # We really don't care if disconnecting fails, since we're cleaning up anyway.
+            except Exception:
                 if connection in connection.signal.connections:
-                    connection.signal.disconnect(
-                        connection
-                    )  # Just make sure it's disconnected if there was an exception.
+                    connection.signal.disconnect(connection)
         self._connections.clear()

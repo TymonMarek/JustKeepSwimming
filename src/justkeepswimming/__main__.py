@@ -4,8 +4,8 @@ import logging
 
 from rich.logging import RichHandler
 
-from justkeepswimming.modules.game import Game
 from justkeepswimming.scenes import SceneID
+from justkeepswimming.systems.engine import Engine
 
 
 def setup_logging(verbosity: int):
@@ -20,10 +20,10 @@ def setup_logging(verbosity: int):
 
 
 async def game_loop():
-    game = Game()
-    await game.start()
-    await game.stage.switch_scene(SceneID.DEFAULT)
-    await game.clock.on_stop.wait()
+    engine = Engine()
+    await engine.start()
+    await engine.stage.switch_scene(SceneID.DEFAULT)
+    await engine.clock.on_stop.wait()
 
 
 def main():

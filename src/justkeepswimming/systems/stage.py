@@ -4,8 +4,8 @@ from dataclasses import dataclass, field
 from logging import getLogger
 from typing import Callable, Optional
 
-from justkeepswimming.modules.clock import TickContext
-from justkeepswimming.utilities.context import GameContext
+from justkeepswimming.systems.clock import TickContext
+from justkeepswimming.utilities.context import EngineContext
 from justkeepswimming.utilities.scene import Scene, SceneID
 from justkeepswimming.utilities.signal import Signal
 
@@ -49,7 +49,7 @@ class StageContext:
 class Stage:
     def __init__(
         self,
-        engine_context: GameContext,
+        engine_context: EngineContext,
         scenes: dict[SceneID, SceneFactory],
         loading_strategy: SceneLoadingStrategy = SceneLoadingStrategy.EAGER,
     ) -> None:
@@ -61,7 +61,7 @@ class Stage:
         self.scene: Optional[Scene] = None
         self.handles: dict[SceneID, SceneHandle] = {}
 
-        self.on_tick = Signal[TickContext, GameContext]()
+        self.on_tick = Signal[TickContext, EngineContext]()
         self.engine_context = engine_context
         self.context = StageContext()
 
@@ -107,7 +107,7 @@ class Stage:
     async def _process_scene(
         self,
         tick_context: TickContext,
-        game_context: GameContext,
+        game_context: EngineContext,
     ) -> None:
         if self.scene:
             await self.scene.on_tick.emit(tick_context, game_context)

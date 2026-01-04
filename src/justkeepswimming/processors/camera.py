@@ -1,32 +1,36 @@
 import pygame
 from pygame import Color, Rect, Vector2
 
-from justkeepswimming.components.physics import Transform
+from justkeepswimming.components.physics import TransformComponent
 from justkeepswimming.components.pseudo import (
     ScenePseudoComponent,
     WindowPseudoComponent,
 )
-from justkeepswimming.components.render import Camera, MainCamera
-from justkeepswimming.ecs import SceneContext, System
-from justkeepswimming.modules.clock import TickContext
-from justkeepswimming.utilities.context import GameContext
+from justkeepswimming.components.render import CameraComponent, MainCameraComponent
+from justkeepswimming.ecs import Processor, SceneContext
+from justkeepswimming.systems.clock import TickContext
+from justkeepswimming.utilities.context import EngineContext
 
 
-class CameraSystem(System):
-    reads = frozenset({Transform, ScenePseudoComponent})
-    writes = frozenset({Camera, WindowPseudoComponent})
+class CameraProcessor(Processor):
+    reads = frozenset({TransformComponent, ScenePseudoComponent})
+    writes = frozenset({CameraComponent, WindowPseudoComponent})
 
     async def update(
         self,
         tick_context: TickContext,
         scene_context: SceneContext,
-        engine_context: GameContext,
+        engine_context: EngineContext,
     ) -> None:
-        for _, (camera, transform) in scene_context.query(Camera, Transform):
+        for _, (camera, transform) in scene_context.query(
+            CameraComponent, TransformComponent
+        ):
             camera.surface = scene_context.surface.subsurface(
                 Rect(transform.position, transform.size)
             )
-        result = scene_context.query_one(Camera, Transform, MainCamera)
+        result = scene_context.query_one(
+            CameraComponent, TransformComponent, MainCameraComponent
+        )
         if result is not None:
             _, (camera, transform, _) = result
             window = engine_context.window

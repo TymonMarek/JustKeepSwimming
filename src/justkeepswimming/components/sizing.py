@@ -4,17 +4,17 @@ from justkeepswimming.ecs import Component
 
 
 @dataclass
-class SurfaceTransformConstraint(Component): ...
+class SurfaceTransformConstraintComponent(Component): ...
 
 
 @dataclass
-class SceneSizeConstraint(Component): ...
+class SceneSizeConstraintComponent(Component): ...
 
 
 @dataclass
-class AspectRatioConstraint(Component):
+class AspectRatioConstraintComponent(Component):
     aspect_ratio: float
 
 
 @dataclass
-class ScreenSizeConstraint(Component): ...
+class ScreenSizeConstraintComponent(Component): ...

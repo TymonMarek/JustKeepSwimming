@@ -7,7 +7,7 @@ from pathlib import Path
 import pygame
 from pygame import Rect, Surface, Vector2, image
 
-from justkeepswimming.components.physics import Transform
+from justkeepswimming.components.physics import TransformComponent
 
 logger = logging.getLogger(__name__)
 
@@ -43,7 +43,7 @@ class Image:
     ) -> None:
         self.path = path
         self._surface: Surface | None = None
-        self.transform: Transform | None = None
+        self.transform: TransformComponent | None = None
         self._load_task: Task[None] | None = None
 
         if strategy == ImageLoadingStrategy.IMMEDIATE:
@@ -83,7 +83,7 @@ class Image:
         except FileNotFoundError:
             logger.warning(f"Failed to load {self.path}: Asset not found.")
             self._surface = Surface((0, 0))
-        self.transform = Transform(
+        self.transform = TransformComponent(
             position=Vector2(0, 0),
             rotation=0.0,
             size=Vector2(self._surface.get_size()),
@@ -95,7 +95,7 @@ class Image:
 
 
 class ImageRegion:
-    def __init__(self, transform: Transform) -> None:
+    def __init__(self, transform: TransformComponent) -> None:
         self.transform = transform
 
     def slice(self, texture: Image) -> Surface:

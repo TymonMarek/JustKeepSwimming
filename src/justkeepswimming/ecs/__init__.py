@@ -5,8 +5,8 @@ from typing import overload
 
 from pygame import Surface, Vector2
 
-from justkeepswimming.modules.clock import TickContext
-from justkeepswimming.utilities.context import GameContext
+from justkeepswimming.systems.clock import TickContext
+from justkeepswimming.utilities.context import EngineContext
 from justkeepswimming.utilities.maid import Maid
 
 
@@ -87,31 +87,37 @@ class SceneContext:
                 yield (entity, components)
 
     @overload
-    def query_one[C1](
-        self, component_type: type[C1]
-    ) -> tuple[Entity, tuple[C1]] | None: ...
+    def query_one[
+        C1
+    ](self, component_type: type[C1]) -> tuple[Entity, tuple[C1]] | None: ...
 
     @overload
-    def query_one[C1, C2](
-        self, first_component_type: type[C1], second_component_type: type[C2]
-    ) -> tuple[Entity, tuple[C1, C2]] | None: ...
+    def query_one[
+        C1, C2
+    ](self, first_component_type: type[C1], second_component_type: type[C2]) -> (
+        tuple[Entity, tuple[C1, C2]] | None
+    ): ...
 
     @overload
-    def query_one[C1, C2, C3](
+    def query_one[
+        C1, C2, C3
+    ](
         self,
         first_component_type: type[C1],
         second_component_type: type[C2],
         third_component_type: type[C3],
-    ) -> tuple[Entity, tuple[C1, C2, C3]] | None: ...
+    ) -> (tuple[Entity, tuple[C1, C2, C3]] | None): ...
 
     @overload
-    def query_one[C1, C2, C3, C4](
+    def query_one[
+        C1, C2, C3, C4
+    ](
         self,
         first_component_type: type[C1],
         second_component_type: type[C2],
         third_component_type: type[C3],
         fourth_component_type: type[C4],
-    ) -> tuple[Entity, tuple[C1, C2, C3, C4]] | None: ...
+    ) -> (tuple[Entity, tuple[C1, C2, C3, C4]] | None): ...
 
     def query_one(self, *classes: type[Component]) -> tuple[Entity, tuple[Component, ...]] | None:  # type: ignore
         for entity_id, components in self.components.items():
@@ -123,20 +129,21 @@ class SceneContext:
                 return (entity, components_tuple)
         return None
 
-class System:
+
+class Processor:
     def __init__(self) -> None:
         self.logger = logging.getLogger(f"System.{self.__class__.__name__}")
 
     writes: frozenset[type[Component]] = frozenset()
     reads: frozenset[type[Component]] = frozenset()
-    before: frozenset[type["System"]] = frozenset()
-    after: frozenset[type["System"]] = frozenset()
+    before: frozenset[type["Processor"]] = frozenset()
+    after: frozenset[type["Processor"]] = frozenset()
 
     async def update(
         self,
         tick_context: TickContext,
         scene_context: SceneContext,
-        engine_context: GameContext,
+        engine_context: EngineContext,
     ) -> None:
         raise NotImplementedError
 

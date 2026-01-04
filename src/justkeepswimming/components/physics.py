@@ -6,7 +6,7 @@ from justkeepswimming.ecs import Component
 
 
 @dataclass
-class Transform(Component):
+class TransformComponent(Component):
     position: Vector2 = field(default_factory=lambda: Vector2(0, 0))
     rotation: float = 0.0
     size: Vector2 = field(default_factory=lambda: Vector2(1, 1))

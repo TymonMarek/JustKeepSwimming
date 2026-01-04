@@ -3,9 +3,9 @@ import logging
 import pygame
 from pygame import Vector2
 
-from justkeepswimming.modules.dispatcher import Dispatcher
+from justkeepswimming.systems.dispatcher import Dispatcher
 
-DEFAULT_WINDOW_TITLE: str = "Default Window"
+DEFAULT_WINDOW_TITLE: str = "Just Keep Swimming!"
 DEFAULT_WINDOW_SIZE: Vector2 = Vector2(800, 600)
 DEFAULT_WINDOW_FLAGS: int = pygame.RESIZABLE
 DEFAULT_IS_VSYNC_ENABLED: bool = False

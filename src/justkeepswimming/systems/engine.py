@@ -5,18 +5,18 @@ from logging import getLogger
 
 import pygame
 
-from justkeepswimming.modules.clock import Clock, TickContext
-from justkeepswimming.modules.dispatcher import Dispatcher
-from justkeepswimming.modules.stage import Stage
-from justkeepswimming.modules.window import Window
 from justkeepswimming.scenes import SceneID, default
-from justkeepswimming.utilities.context import GameContext
+from justkeepswimming.systems.clock import Clock, TickContext
+from justkeepswimming.systems.dispatcher import Dispatcher
+from justkeepswimming.systems.stage import Stage
+from justkeepswimming.systems.window import Window
+from justkeepswimming.utilities.context import EngineContext
 
 os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 pygame.init()
 
 
-class Game:
+class Engine:
     def __init__(self):
         self.time_started = time.time()
         self.logger = getLogger(__name__)
@@ -25,7 +25,7 @@ class Game:
         self.window = Window(self.dispatcher)
         self.clock = Clock()
 
-        self.context = GameContext(
+        self.context = EngineContext(
             clock=self.clock,
             window=self.window,
             dispatcher=self.dispatcher,
@@ -42,10 +42,7 @@ class Game:
         self.clock.on_tick.connect(self._process_game)
 
     def _attach_quit_handler(self) -> None:
-        self.logger.debug("Setting up quit event handler.")
-
         async def _on_quit(event: pygame.event.Event) -> None:
-            self.logger.info("Exiting on the next tick...")
             await self._quit()
 
         self.dispatcher.get_signal_for(pygame.QUIT).connect(_on_quit)
@@ -59,5 +56,5 @@ class Game:
         self.logger.info(f"Ready in {time.time() - self.time_started:.2f} seconds!")
 
     async def _quit(self) -> None:
-        self.logger.info("Stopping process...")
+        self.logger.info("Stopping...")
         await self.clock.on_stop.emit()
