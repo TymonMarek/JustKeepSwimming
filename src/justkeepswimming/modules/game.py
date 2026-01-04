@@ -1,6 +1,7 @@
 import asyncio
 
 import os
+import time
 
 from justkeepswimming.scenes import SceneID, default
 
@@ -21,8 +22,9 @@ from justkeepswimming.modules.stage import Stage
 
 class Game:
     def __init__(self):
+        self.time_started = time.time()
         self.logger = getLogger(__name__)
-        self.logger.info("Initializing process...")
+        self.logger.info("Initializing...")
         self.dispatcher = Dispatcher()
         self.window = Window(self.dispatcher)
         self.clock = Clock()
@@ -47,7 +49,7 @@ class Game:
         self.logger.debug("Setting up quit event handler.")
 
         async def _on_quit(event: pygame.event.Event) -> None:
-            self.logger.info("Received QUIT, exiting the process on the next tick...")
+            self.logger.info("Exiting on the next tick...")
             await self._quit()
 
         self.dispatcher.get_signal_for(pygame.QUIT).connect(_on_quit)
@@ -57,9 +59,8 @@ class Game:
         await self.stage.on_tick.emit(tick_context, self.context)
 
     async def start(self) -> None:
-        self.logger.info("Process ready!")
         asyncio.create_task(self.clock.on_start.emit())
-        self.logger.info("Exiting process...")
+        self.logger.info(f"Ready in {time.time() - self.time_started:.2f} seconds!")
 
     async def _quit(self) -> None:
         self.logger.info("Stopping process...")

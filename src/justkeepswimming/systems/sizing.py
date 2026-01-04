@@ -1,14 +1,24 @@
-from pygame import Vector2
+from pygame import Rect, Surface, Vector2
 
-from justkeepswimming.components.sizing import AspectRatioConstraint, SceneSizeConstraint, ScreenSizeConstraint
+from justkeepswimming.components.pseudo import ScenePseudoComponent, WindowPseudoComponent
+from justkeepswimming.components.render import Renderer
+from justkeepswimming.components.sizing import (
+    AspectRatioConstraint,
+    SceneSizeConstraint,
+    ScreenSizeConstraint,
+)
 from justkeepswimming.components.physics import Transform
 from justkeepswimming.ecs import SceneContext, System
 from justkeepswimming.modules.clock import TickContext
+from justkeepswimming.systems.render import RenderSystem
 from justkeepswimming.utilities.context import GameContext
 
 class SceneSizeConstraintSystem(System):
-    writes = frozenset({Transform})
-    
+    reads = frozenset({Transform})
+    writes = frozenset({ScenePseudoComponent})
+    before = frozenset({RenderSystem})
+    after = frozenset({})
+
     async def update(
         self,
         tick_context: TickContext,
@@ -20,9 +30,42 @@ class SceneSizeConstraintSystem(System):
             transform.size = Vector2(surface.get_size())
 
 
+class RendererTransformConstraintSystem(System):
+    reads = frozenset({Transform, Renderer})
+    writes = frozenset({Renderer})
+    before = frozenset({RenderSystem})
+    after = frozenset({})
+
+    async def update(
+        self,
+        tick_context: TickContext,
+        scene_context: SceneContext,
+        engine_context: GameContext,
+    ) -> None:
+        for _, (transform, renderer) in scene_context.query(
+            Transform, Renderer
+        ):
+            if transform.size != Vector2(renderer.surface.get_size()):
+                surface = Surface(
+                    transform.size, flags=renderer.surface.get_flags()
+                )
+                destination = (
+                    Vector2(surface.get_size()) / 2
+                    - transform.size.elementwise() * transform.anchor
+                )
+                surface.blit(
+                    renderer.surface,
+                    destination,
+                    area=Rect((0, 0), transform.size),
+                )
+                renderer.surface = surface
+
+
 class AspectRatioConstraintSystem(System):
     reads = frozenset({Transform, AspectRatioConstraint})
     writes = frozenset({Transform})
+    before = frozenset({})
+    after = frozenset({})
 
     async def update(
         self,
@@ -47,8 +90,10 @@ class AspectRatioConstraintSystem(System):
 
 
 class ScreenSizeConstraintSystem(System):
-    reads = frozenset({Transform, ScreenSizeConstraint})
+    reads = frozenset({Transform, WindowPseudoComponent})
     writes = frozenset({Transform})
+    before = frozenset({})
+    after = frozenset({})
 
     async def update(
         self,

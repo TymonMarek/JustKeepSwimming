@@ -23,7 +23,7 @@ class Component:
 class System:
     def __init__(self) -> None:
         self.logger = logging.getLogger(f"System.{self.__class__.__name__}")
-    
+
     writes: frozenset[type[Component]] = frozenset()
     reads: frozenset[type[Component]] = frozenset()
     before: frozenset[type[System]] = frozenset()
@@ -36,7 +36,7 @@ class System:
         engine_context: GameContext,
     ) -> None:
         raise NotImplementedError
-    
+
     def __repr__(self) -> str:
         return f"<System {self.__class__.__name__}>"
 

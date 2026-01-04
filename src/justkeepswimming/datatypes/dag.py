@@ -51,15 +51,15 @@ class DirectedAcyclicGraph(Generic[T]):
     def _require_node(self, node: DirectedAcyclicGraphNode[T]) -> None:
         if node not in self.nodes:
             raise NodeNotFoundError(f"{node} is not part of this graph.")
-    
+
     def _find_path(
         self,
         start: DirectedAcyclicGraphNode[T],
         target: DirectedAcyclicGraphNode[T],
     ) -> List[DirectedAcyclicGraphNode[T]] | None:
-        stack: list[tuple[DirectedAcyclicGraphNode[T], list[DirectedAcyclicGraphNode[T]]]] = [
-            (start, [start])
-        ]
+        stack: list[
+            tuple[DirectedAcyclicGraphNode[T], list[DirectedAcyclicGraphNode[T]]]
+        ] = [(start, [start])]
         visited: set[DirectedAcyclicGraphNode[T]] = set()
 
         while stack:
@@ -77,10 +77,8 @@ class DirectedAcyclicGraph(Generic[T]):
                 stack.append((dep, path + [dep]))
 
         return None
-    
-    def _format_cycle(
-        self, nodes: list[DirectedAcyclicGraphNode[T]]
-    ) -> str:
+
+    def _format_cycle(self, nodes: list[DirectedAcyclicGraphNode[T]]) -> str:
         names = [repr(node.value) for node in nodes]
 
         arrow = " -> "

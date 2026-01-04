@@ -1,8 +1,11 @@
 import asyncio
 from logging import getLogger
-from typing import Awaitable, Set, Dict, Type
+from typing import Set, Dict, Type
 
-from justkeepswimming.datatypes.dag import DirectedAcyclicGraph, DirectedAcyclicGraphNode
+from justkeepswimming.datatypes.dag import (
+    DirectedAcyclicGraph,
+    DirectedAcyclicGraphNode,
+)
 from justkeepswimming.utilities.context import GameContext
 from justkeepswimming.modules.clock import TickContext
 from justkeepswimming.ecs import Component, SceneContext, System
@@ -31,7 +34,7 @@ class SystemScheduler:
         self._nodes: Dict[System, DirectedAcyclicGraphNode[System]] = {}
         self._graph: DirectedAcyclicGraph[System] = DirectedAcyclicGraph()
         self._execution_order: list[Set[System]] = []
-        
+
     def _fmt_components(self, components: frozenset[Type[Component]]) -> str:
         return "{" + ", ".join(comp.__name__ for comp in components) + "}"
 
@@ -42,12 +45,12 @@ class SystemScheduler:
         engine_context: GameContext,
     ) -> None:
         for system_group in self._execution_order:
-            awaitables: list[Awaitable[None]] = []
-            for system in system_group:
-                awaitables.append(
+            await asyncio.gather(
+                *(
                     system.update(tick_context, scene_context, engine_context)
+                    for system in system_group
                 )
-            await asyncio.gather(*awaitables)
+            )
 
     def add_system(self, system: System) -> None:
         if system in self.systems:
@@ -69,6 +72,12 @@ class SystemScheduler:
     def execution_order(self) -> list[Set[System]]:
         return self._execution_order
 
+    def _explicit_order(self, a: System, b: System) -> int | None:
+        if type(b) in a.before or type(a) in b.after:
+            return -1
+        if type(b) in a.after or type(a) in b.before:
+            return 1
+        return None
 
     def _rebuild(self) -> None:
         self.logger.debug("Rebuilding system scheduler DAG")
@@ -99,89 +108,38 @@ class SystemScheduler:
                 node_a = self._nodes[a]
                 node_b = self._nodes[b]
 
+                order = self._explicit_order(a, b)
+                if order is not None:
+                    if order < 0:
+                        self.logger.debug(f"Explicit override: {a} runs BEFORE {b}")
+                        self._graph.set_dependency(node_b, node_a)
+                    else:
+                        self.logger.debug(f"Explicit override: {a} runs AFTER {b}")
+                        self._graph.set_dependency(node_a, node_b)
+                    continue
+
                 write_read = a.writes & b.reads
                 if write_read:
                     self.logger.debug(
-                        f"Ordering decision: {a} runs BEFORE {b} "
-                        f"because {b} reads {self._fmt_components(write_read)} "
-                        f"that {a} writes"
+                        f"Inferred: {a} runs BEFORE {b} "
+                        f"because {b} reads {self._fmt_components(write_read)}"
                     )
                     self._graph.set_dependency(node_b, node_a)
 
                 read_write = a.reads & b.writes
                 if read_write:
                     self.logger.debug(
-                        f"Ordering decision: {b} runs BEFORE {a} "
-                        f"because {a} reads {self._fmt_components(read_write)} "
-                        f"that {b} writes"
+                        f"Inferred: {b} runs BEFORE {a} "
+                        f"because {a} reads {self._fmt_components(read_write)}"
                     )
                     self._graph.set_dependency(node_a, node_b)
 
                 write_write = a.writes & b.writes
                 if write_write:
-                    self.logger.debug(
-                        f"Write-write conflict detected between {a} and {b} "
+                    raise SystemConflictException(
+                        f"Unresolved write-write conflict between {a} and {b} "
                         f"on {self._fmt_components(write_write)}"
                     )
-
-                    if type(a) in b.after:
-                        self.logger.debug(
-                            f"Resolved by explicit ordering: {b} declares after {type(a).__name__} "
-                            f"→ {a} runs BEFORE {b}"
-                        )
-                        self._graph.set_dependency(node_a, node_b)
-
-                    elif type(b) in a.after:
-                        self.logger.debug(
-                            f"Resolved by explicit ordering: {a} declares after {type(b).__name__} "
-                            f"→ {b} runs BEFORE {a}"
-                        )
-                        self._graph.set_dependency(node_b, node_a)
-
-                    elif type(a) in b.before:
-                        self.logger.debug(
-                            f"Resolved by explicit ordering: {b} declares before {type(a).__name__} "
-                            f"→ {b} runs BEFORE {a}"
-                        )
-                        self._graph.set_dependency(node_b, node_a)
-
-                    elif type(b) in a.before:
-                        self.logger.debug(
-                            f"Resolved by explicit ordering: {a} declares before {type(b).__name__} "
-                            f"→ {a} runs BEFORE {b}"
-                        )
-                        self._graph.set_dependency(node_a, node_b)
-
-                    else:
-                        self.logger.warning(
-                            f"Unresolved write-write conflict between {a} and {b} "
-                            f"on {self._fmt_components(write_write)}. "
-                            f"Assuming {a} runs BEFORE {b}. This may be non-deterministic."
-                        )
-
-                    self.logger.debug(
-                        f"Final decision: {a} runs BEFORE {b} due to write-write conflict"
-                    )
-                    self._graph.set_dependency(node_b, node_a)
-
-        for system in systems:
-            node = self._nodes[system]
-
-            for before_type in system.before:
-                target = self._find_system(before_type)
-                self.logger.debug(
-                    f"Explicit ordering: {system} runs BEFORE {target} "
-                    f"due to 'before={before_type.__name__}'"
-                )
-                self._graph.set_dependency(node, self._nodes[target])
-
-            for after_type in system.after:
-                target = self._find_system(after_type)
-                self.logger.debug(
-                    f"Explicit ordering: {system} runs AFTER {target} "
-                    f"due to 'after={after_type.__name__}'"
-                )
-                self._graph.set_dependency(self._nodes[target], node)
 
         self._execution_order = self._graph.parallel_sort()
 

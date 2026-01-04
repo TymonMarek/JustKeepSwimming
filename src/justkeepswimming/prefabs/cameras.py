@@ -4,7 +4,7 @@ from justkeepswimming.components.render import Camera, MainCamera
 
 from justkeepswimming.ecs import Component, System
 from justkeepswimming.systems.render import RenderSystem
-from justkeepswimming.systems.cameras import CameraSystem
+from justkeepswimming.systems.camera import CameraSystem
 
 from justkeepswimming.utilities.prefab import Prefab
 from justkeepswimming.systems.sizing import SceneSizeConstraintSystem
