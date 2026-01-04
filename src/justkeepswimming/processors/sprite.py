@@ -1,5 +1,5 @@
 import pygame
-from pygame import Surface, Vector2
+from pygame import Vector2
 
 from justkeepswimming.components.render import RendererComponent
 from justkeepswimming.components.sprite import SpriteComponent
@@ -27,12 +27,11 @@ class SpriteProcessor(Processor):
         for _, (sprite, renderer) in scene_context.query(
             SpriteComponent, RendererComponent
         ):
-            surface = (
-                sprite.content
-                if isinstance(sprite.content, Surface)
-                else sprite.content.surface
-            )
+            if not sprite.content:
+                continue
             renderer.surface.blit(
-                pygame.transform.scale(surface, renderer.surface.get_size()),
+                pygame.transform.scale(
+                    sprite.content.surface, renderer.surface.get_size()
+                ),
                 Vector2(0, 0),
             )
