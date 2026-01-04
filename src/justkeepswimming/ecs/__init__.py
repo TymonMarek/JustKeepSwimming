@@ -86,6 +86,42 @@ class SceneContext:
                 )
                 yield (entity, components)
 
+    @overload
+    def query_one[C1](
+        self, component_type: type[C1]
+    ) -> tuple[Entity, tuple[C1]] | None: ...
+
+    @overload
+    def query_one[C1, C2](
+        self, first_component_type: type[C1], second_component_type: type[C2]
+    ) -> tuple[Entity, tuple[C1, C2]] | None: ...
+
+    @overload
+    def query_one[C1, C2, C3](
+        self,
+        first_component_type: type[C1],
+        second_component_type: type[C2],
+        third_component_type: type[C3],
+    ) -> tuple[Entity, tuple[C1, C2, C3]] | None: ...
+
+    @overload
+    def query_one[C1, C2, C3, C4](
+        self,
+        first_component_type: type[C1],
+        second_component_type: type[C2],
+        third_component_type: type[C3],
+        fourth_component_type: type[C4],
+    ) -> tuple[Entity, tuple[C1, C2, C3, C4]] | None: ...
+
+    def query_one(self, *classes: type[Component]) -> tuple[Entity, tuple[Component, ...]] | None:  # type: ignore
+        for entity_id, components in self.components.items():
+            if all(component_type in components.keys() for component_type in classes):
+                entity = self.entities[entity_id]
+                components_tuple = tuple(
+                    components[component_type] for component_type in classes
+                )
+                return (entity, components_tuple)
+        return None
 
 class System:
     def __init__(self) -> None:
