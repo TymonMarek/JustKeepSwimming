@@ -63,7 +63,7 @@ class CharacterAnimationProcessor(Processor):
             AnimationStateComponent,
             SpritesheetComponent,
         ):
-            desired_animation = spritesheet_component.spritesheet[
+            desired_animation = spritesheet_component.animations[
                 character_component.current_state
             ]
             if (

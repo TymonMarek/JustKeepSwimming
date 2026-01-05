@@ -16,7 +16,7 @@ class AnimationComponent(Component):
 
 @dataclass
 class SpritesheetComponent(Component):
-    spritesheet: dict[AnimationType, Animation]
+    animations: dict[AnimationType, Animation]
 
 
 @dataclass
