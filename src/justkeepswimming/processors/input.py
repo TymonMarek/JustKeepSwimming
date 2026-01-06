@@ -12,10 +12,10 @@ from justkeepswimming.utilities.context import EngineContext
 from justkeepswimming.utilities.log import logger
 
 LINEAR_INPUT_ACTION_TO_WISH_VECTOR: dict[InputActionId, Vector2] = {
-    InputActionId.PLAYER_MOVE_UP: Vector2(0, 1),
-    InputActionId.PLAYER_MOVE_DOWN: Vector2(0, -1),
-    InputActionId.PLAYER_MOVE_LEFT: Vector2(-1, 0),
-    InputActionId.PLAYER_MOVE_RIGHT: Vector2(1, 0),
+    InputActionId.PLAYER_MOVE_UP: Vector2(1, 0),
+    InputActionId.PLAYER_MOVE_DOWN: Vector2(-1, 0),
+    InputActionId.PLAYER_MOVE_LEFT: Vector2(0, 1),
+    InputActionId.PLAYER_MOVE_RIGHT: Vector2(0, -1),
 }
 
 

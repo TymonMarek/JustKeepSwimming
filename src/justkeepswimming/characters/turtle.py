@@ -183,7 +183,7 @@ class TurtlePrefab(Prefab):
         ),
         TransformComponent(
             position=Vector2(300, 300),
-            size=Vector2(48 * 6, 48 * 6),
+            size=Vector2(48 * 3, 48 * 3),
             anchor=Vector2(0.5, 0.5),
         ),
         AnimationStateComponent(

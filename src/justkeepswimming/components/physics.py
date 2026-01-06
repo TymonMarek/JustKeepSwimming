@@ -9,18 +9,18 @@ from justkeepswimming.ecs import Component
 class LinearPhysicsComponent(Component):
     velocity: Vector2 = field(default_factory=lambda: Vector2(0, 0))
     acceleration: Vector2 = field(default_factory=lambda: Vector2(0, 0))
-    thrust: float = 1000.0
-    max_velocity: float = 500.0
-    drag: float = 0.1
+    thrust: float = 3000.0
+    max_velocity: float = 2000.0
+    drag: float = 0.6
 
 
 @dataclass
 class AngularPhysicsComponent(Component):
     angular_velocity: float = 0.0
     angular_acceleration: float = 0.0
-    torque: float = 360.0
-    max_angular_velocity: float = 360.0
-    angular_drag: float = 0.1
+    torque: float = 500.0
+    max_angular_velocity: float = 100.0
+    angular_drag: float = 0.6
 
 
 @dataclass
