@@ -5,44 +5,35 @@ from justkeepswimming.utilities.scene import Scene
 
 
 class Prefab:
-    extends: "Prefab | None" = None
+    extends: "Prefab | list[Prefab] | None" = None
     components: list[Component]
     processors: list[type[Processor]]
     logger = logging.getLogger(__name__)
 
-    def construct(self, scene: "Scene") -> Entity:
-        if self.extends is not None:
-            self.logger.debug(
-                "Constructing entity from extended prefab: %s", self.extends
-            )
-            entity = self.extends.construct(scene)
+    def construct(self, scene: "Scene", use_entity: Entity | None = None) -> Entity:
+        entity: Entity
+        if use_entity is not None:
+            entity = use_entity
         else:
-            self.logger.debug("Creating new entity from scratch.")
             entity = scene.context.create_entity()
+
+        if self.extends:
+            if isinstance(self.extends, list):
+                for prefab in self.extends:
+                    prefab.construct(scene, use_entity=entity)
+            else:
+                self.extends.construct(scene, use_entity=entity)
 
         for component in self.components:
             component_type = type(component)
-            self.logger.debug("Adding component: %s", component_type.__name__)
-
             if entity.has_component(component_type):
-                self.logger.debug(
-                    "Entity already has component %s, removing it first.",
-                    component_type.__name__,
-                )
                 entity.remove_component(entity.get_component(component_type))
-
             entity.add_component(component.__class__(**vars(component)))
-            self.logger.debug("Component %s added.", component_type.__name__)
+
         for processor_cls in self.processors:
-            if any(isinstance(p, processor_cls) for p in scene.scheduler.processors):
-                self.logger.debug(
-                    "Processor %s already present in scheduler, skipping.",
-                    processor_cls.__name__,
-                )
-                continue
+            if not any(
+                isinstance(p, processor_cls) for p in scene.scheduler.processors
+            ):
+                scene.scheduler.add_processor(processor_cls())
 
-            self.logger.debug("Adding processor: %s", processor_cls.__name__)
-            scene.scheduler.add_processor(processor_cls())
-
-        self.logger.debug("Entity construction complete: %s", entity)
         return entity

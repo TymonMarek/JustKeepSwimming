@@ -1,3 +1,4 @@
+import pygame
 from pygame import Color
 
 from justkeepswimming.components.physics import TransformComponent
@@ -25,11 +26,13 @@ class RendererProcessor(Processor):
         for _, (transform, renderer) in scene_context.query(
             TransformComponent, RendererComponent
         ):
-            scene.blit(
-                renderer.surface,
-                transform.position.elementwise()
-                - transform.size.elementwise() * transform.anchor,
+            rotated_surface = pygame.transform.rotate(
+                renderer.surface, -transform.rotation
             )
+            rotated_rect = rotated_surface.get_rect()
+            anchor_offset = transform.size.elementwise() * transform.anchor
+            rotated_rect.center = transform.position - anchor_offset
+            scene.blit(rotated_surface, rotated_rect.topleft)
 
 
 class RendererPreProcessor(Processor):

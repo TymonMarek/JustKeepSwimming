@@ -13,6 +13,8 @@ class InputActionId(enum.StrEnum):
     PLAYER_MOVE_DOWN = enum.auto()
     PLAYER_MOVE_LEFT = enum.auto()
     PLAYER_MOVE_RIGHT = enum.auto()
+    PLAYER_TURN_LEFT = enum.auto()
+    PLAYER_TURN_RIGHT = enum.auto()
 
 
 class KeyboardKeyType(enum.Enum):
@@ -20,6 +22,8 @@ class KeyboardKeyType(enum.Enum):
     A = pygame.K_a
     S = pygame.K_s
     D = pygame.K_d
+    Q = pygame.K_q
+    E = pygame.K_e
 
 
 class MouseButtonType(enum.Enum):

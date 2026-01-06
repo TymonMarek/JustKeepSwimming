@@ -136,7 +136,9 @@ class ProcessorScheduler:
 
                 write_write = a.writes & b.writes
                 if write_write:
-                    if type(a) not in b.alongside or type(b) not in a.alongside:
+                    if type(a) in b.alongside or type(b) in a.alongside:
+                        ...
+                    else:
                         raise SystemConflictException(
                             f"Unresolved write-write conflict between {a} and {b} "
                             f"on {self._fmt_components(write_write)}"

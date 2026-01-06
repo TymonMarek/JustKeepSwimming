@@ -6,5 +6,10 @@ from justkeepswimming.ecs import Component
 
 
 @dataclass
-class PlayerMovementInputComponent(Component):
-    direction: Vector2 = field(default_factory=lambda: Vector2(0, 0))
+class PlayerLinearMovementInputComponent(Component):
+    thrust: Vector2 = field(default_factory=lambda: Vector2(0, 0))
+
+
+@dataclass
+class PlayerAngularMovementInputComponent(Component):
+    torque: float = 0.0

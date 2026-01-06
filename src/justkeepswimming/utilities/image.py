@@ -95,9 +95,6 @@ class Frame:
         anchor_offset = self.transform.size.elementwise() * self.transform.anchor
         top_left = self.transform.position - anchor_offset
 
-        # TODO
-        # pygame.draw.rect(await texture.get_surface(), (255, 0, 0), Rect(top_left, self.transform.size), 2)
-
         region = (await texture.get_surface()).subsurface(
             Rect(top_left, self.transform.size)
         )

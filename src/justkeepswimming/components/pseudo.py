@@ -13,5 +13,5 @@ class WindowPseudoComponent(Component):
     pass
 
 
-class InputActionComponent(Component):
+class InputPseudoComponent(Component):
     pass
