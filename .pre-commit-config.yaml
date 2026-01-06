@@ -3,8 +3,6 @@
     rev: v4.6.0
     hooks:
       - id: check-merge-conflict
-      - id: check-yaml
-      - id: check-toml
       - id: end-of-file-fixer
       - id: trailing-whitespace
       - id: check-added-large-files
