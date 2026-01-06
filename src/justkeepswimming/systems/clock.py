@@ -61,7 +61,7 @@ class Clock:
             self.__pygame_clock.get_fps() < SAFE_FPS
             and self.__pygame_clock.get_fps() > 0
         ):
-            self.logger.warning(
+            self.logger.debug(
                 f"A performance drop has been detected! Your application is running at an extremely low framerate of {self.__pygame_clock.get_fps():.0f} FPS, something is very wrong!"
             )
         await self.on_tick.emit(tick_data)
