@@ -7,7 +7,8 @@ from justkeepswimming.utilities.image import Image
 
 
 @dataclass
-class MainCameraComponent(Component): ...
+class MainCameraComponent(Component):
+    pass
 
 
 @dataclass

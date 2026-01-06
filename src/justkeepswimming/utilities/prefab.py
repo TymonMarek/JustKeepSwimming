@@ -32,7 +32,8 @@ class Prefab:
 
         for processor_cls in self.processors:
             if not any(
-                isinstance(p, processor_cls) for p in scene.scheduler.processors
+                isinstance(processor, processor_cls)
+                for processor in scene.scheduler.processors
             ):
                 scene.scheduler.add_processor(processor_cls())
 
