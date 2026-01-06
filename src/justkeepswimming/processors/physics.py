@@ -73,7 +73,7 @@ class LinearPhysicsProcessor(Processor):
             LinearPhysicsComponent,
             TransformComponent,
         ):
-            thrust_acceleration = Vector2(0, 0)
+            linear_physics.acceleration = Vector2(0, 0)
 
             if entity.has_component(PlayerLinearMovementInputComponent):
                 input_component = entity.get_component(
@@ -88,9 +88,9 @@ class LinearPhysicsProcessor(Processor):
                 if wish_direction.length_squared() > 0:
                     wish_direction = wish_direction.normalize()
 
-                thrust_acceleration = wish_direction * linear_physics.thrust
+                linear_physics.acceleration = wish_direction * linear_physics.thrust
 
-            linear_physics.velocity += thrust_acceleration * delta
+            linear_physics.velocity += linear_physics.acceleration * delta
             linear_physics.velocity -= (
                 linear_physics.velocity * linear_physics.drag * delta
             )

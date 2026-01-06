@@ -41,11 +41,11 @@ class TurtlePrefab(Prefab):
                     sequence=KeyframeSequence(
                         [
                             Keyframe(
-                                0.25,
+                                0,
                                 Frame(TURTLE_GRID.cell(0, 0)),
                             ),
                             Keyframe(
-                                0.50,
+                                0.25,
                                 Frame(TURTLE_GRID.cell(0, 1)),
                             ),
                             Keyframe(
@@ -59,11 +59,45 @@ class TurtlePrefab(Prefab):
                         ]
                     ),
                 ),
+                AnimationType.REVERSE_WALK: Animation(
+                    image=Image(Path("assets/spritesheets/turtle.png")),
+                    priority=AnimationPriority.MEDIUM,
+                    looped=True,
+                    speed=1.5,
+                    sequence=KeyframeSequence(
+                        [
+                            Keyframe(
+                                0.0,
+                                Frame(TURTLE_GRID.cell(1, 5)),
+                            ),
+                            Keyframe(
+                                0.2,
+                                Frame(TURTLE_GRID.cell(1, 4)),
+                            ),
+                            Keyframe(
+                                0.4,
+                                Frame(TURTLE_GRID.cell(1, 3)),
+                            ),
+                            Keyframe(
+                                0.6,
+                                Frame(TURTLE_GRID.cell(1, 2)),
+                            ),
+                            Keyframe(
+                                0.8,
+                                Frame(TURTLE_GRID.cell(1, 1)),
+                            ),
+                            Keyframe(
+                                1.0,
+                                Frame(TURTLE_GRID.cell(1, 0)),
+                            ),
+                        ]
+                    ),
+                ),
                 AnimationType.WALK: Animation(
                     image=Image(Path("assets/spritesheets/turtle.png")),
                     priority=AnimationPriority.MEDIUM,
                     looped=True,
-                    speed=1.0,
+                    speed=1.5,
                     sequence=KeyframeSequence(
                         [
                             Keyframe(
@@ -75,15 +109,15 @@ class TurtlePrefab(Prefab):
                                 Frame(TURTLE_GRID.cell(1, 1)),
                             ),
                             Keyframe(
-                                0.3,
+                                0.4,
                                 Frame(TURTLE_GRID.cell(1, 2)),
                             ),
                             Keyframe(
-                                0.4,
+                                0.6,
                                 Frame(TURTLE_GRID.cell(1, 3)),
                             ),
                             Keyframe(
-                                0.6,
+                                0.8,
                                 Frame(TURTLE_GRID.cell(1, 4)),
                             ),
                             Keyframe(
@@ -187,7 +221,7 @@ class TurtlePrefab(Prefab):
             anchor=Vector2(0.5, 0.5),
         ),
         AnimationStateComponent(
-            current_state=AnimationType.WALK,
+            current_state=AnimationType.IDLE,
         ),
         TintComponent(
             color=Color(0, 255, 0),

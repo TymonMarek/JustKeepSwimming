@@ -7,6 +7,7 @@ from justkeepswimming.prefabs.renderable import RenderablePrefab
 from justkeepswimming.processors.animation import (
     AnimationTrackPlaybackProcessor,
     CharacterAnimationProcessor,
+    CharacterAnimationStateProcessors,
 )
 from justkeepswimming.utilities.prefab import Prefab
 
@@ -20,5 +21,6 @@ class CharacterPrefab(Prefab):
     ]
     processors = [
         AnimationTrackPlaybackProcessor,
+        CharacterAnimationStateProcessors,
         CharacterAnimationProcessor,
     ]

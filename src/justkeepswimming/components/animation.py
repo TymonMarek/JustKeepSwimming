@@ -28,3 +28,4 @@ class AnimatorComponent(Component):
 class AnimationStateComponent(Component):
     current_state: AnimationType = AnimationType.IDLE
     current_track: AnimationTrack | None = None
+    current_speed: float = 1.0
