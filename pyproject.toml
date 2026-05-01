@@ -23,7 +23,7 @@ bump = [
 ]
 
 build = [
-    "imageio>=2.37.2",
+    "imageio>=2.37.3",
     "nuitka",
     "toml>=0.10.2",
 ]
