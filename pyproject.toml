@@ -52,7 +52,7 @@ standalone = true
 enable-plugin = ["pygame"]
 
 [build-system]
-requires = ["setuptools>=65.5.1", "wheel"]
+requires = ["setuptools>=82.0.1", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.semantic_release]
